@@ -3,6 +3,8 @@ import cv2
 def read_video(video_path):
     cap = cv2.VideoCapture(video_path)
     frames = []
+    if not cap.isOpened():
+        raise ValueError(f"Error opening video file: {video_path}")
     
     while(True):
         ret, frame = cap.read()
