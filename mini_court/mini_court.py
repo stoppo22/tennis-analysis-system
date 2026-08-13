@@ -227,7 +227,7 @@ class MiniCourt():
             closest_player_id_to_ball = min(player_bbox.keys(), key=lambda x: measure_distance(ball_position,get_center_of_bbox(player_bbox[x]) ))
 
 
-        for frame_num, player_bbox in enumerate(player_boxes):
+        
             output_player_bbox_dict = {}
             output_ball_bboxes_dict = {}
             
