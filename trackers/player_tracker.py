@@ -37,6 +37,13 @@ class PlayerTracker:
             
         # Sort players in ascending order of distance
         distances.sort(key=lambda x: x[1])
+
+        if len(distances) < 2:
+            raise ValueError(
+                "Expected at least two player detections in the first frame, "
+                f"but found {len(distances)}"
+            )
+
         #choose the  first 2 players
         chosen_players = [distances[0][0], distances[1][0]]
         return chosen_players

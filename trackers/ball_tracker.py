@@ -11,8 +11,19 @@ class BallTracker:
 
     def interpolate_ball_positions(self, ball_positions):
         ball_positions = [x.get(1,[]) for x in ball_positions]
+
+        if not any(ball_positions):
+            raise ValueError(
+                "Cannot interpolate ball positions because no ball was detected"
+            )
+
         #convert the list to a pandas DataFrame
         df_ball_positions = pd.DataFrame(ball_positions,columns=['x1','y1','x2','y2'])
+
+        if df_ball_positions.dropna(how="all").empty:
+            raise ValueError(
+                "Cannot interpolate ball positions because no ball was detected"
+            )
 
         #interpolate the missing values
         df_ball_positions = df_ball_positions.interpolate()     

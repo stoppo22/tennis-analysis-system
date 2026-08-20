@@ -16,13 +16,39 @@ def read_video(video_path):
         frames.append(frame) 
     
     cap.release()
+
+    if not frames:
+        raise ValueError(f"No frames could be read from video file: {video_path}")
+
     return frames, fps
 
 
 def save_video(output_video_frames, output_video_path, fps):
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(output_video_path, fourcc, fps, (output_video_frames[0].shape[1], output_video_frames[0].shape[0]))
-        for frame in output_video_frames:
-            out.write(frame)   
+    if not output_video_frames:
+        raise ValueError("Cannot save a video without frames")
+    if fps <= 0:
+        raise ValueError(f"Cannot save a video with invalid frame rate: {fps}")
+
+    frame_height, frame_width = output_video_frames[0].shape[:2]
+    fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+    out = cv2.VideoWriter(
+        output_video_path,
+        fourcc,
+        fps,
+        (frame_width, frame_height),
+    )
+
+    if not out.isOpened():
         out.release()
-       
+        raise ValueError(f"Error opening output video file: {output_video_path}")
+
+    try:
+        for frame_number, frame in enumerate(output_video_frames):
+            if frame.shape[:2] != (frame_height, frame_width):
+                raise ValueError(
+                    "All output video frames must have the same dimensions; "
+                    f"frame {frame_number} has shape {frame.shape[:2]}"
+                )
+            out.write(frame)
+    finally:
+        out.release()
