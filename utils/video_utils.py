@@ -5,20 +5,23 @@ def read_video(video_path):
     frames = []
     if not cap.isOpened():
         raise ValueError(f"Error opening video file: {video_path}")
-    
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps <= 0:
+        cap.release()
+        raise ValueError(f"Invalid frame rate for video file: {video_path}")
     while(True):
         ret, frame = cap.read()
         if not ret:
             break
-        frames.append(frame)
+        frames.append(frame) 
     
     cap.release()
-    return frames
+    return frames, fps
 
 
-def save_video(output_video_frames, output_video_path):
+def save_video(output_video_frames, output_video_path, fps):
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(output_video_path, fourcc, 24, (output_video_frames[0].shape[1], output_video_frames[0].shape[0]))
+        out = cv2.VideoWriter(output_video_path, fourcc, fps, (output_video_frames[0].shape[1], output_video_frames[0].shape[0]))
         for frame in output_video_frames:
             out.write(frame)   
         out.release()
