@@ -14,10 +14,9 @@ from copy import deepcopy
 import pandas as pd
 from pathlib import Path
 
-def main():
+def analyze_video(input_video_path, output_video_path):
 
     # Read video frames
-    input_video_path = "input_videos/input_video.mp4"
     video_name = Path(input_video_path).stem
 
     player_stub_path = Path("tracker_stubs") / f"{video_name}_player_detections.pkl"
@@ -175,8 +174,16 @@ def main():
     for i, frame in enumerate(output_video_frames):
         cv2.putText(frame, f"Frame: {i+1}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    #Save output video
-    save_video(output_video_frames, "output_videos/output_video.avi" , fps)
+        # Save output video
+    save_video(output_video_frames, output_video_path, fps)
+
+
+def main():
+    analyze_video(
+        input_video_path="input_videos/input_video.mp4",
+        output_video_path="output_videos/output_video.avi",
+    )
+
 
 if __name__ == "__main__":
     main()
