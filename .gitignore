@@ -219,3 +219,16 @@ __marimo__/
 
 output_videos/
 models/keypoints_model.pth
+
+# Local virtual environments
+.venv*/
+
+# Model weights
+*.pt
+*.pth
+
+# Input videos
+input_videos/*
+
+# Generated detection caches
+tracker_stubs/*.pkl
