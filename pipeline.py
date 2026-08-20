@@ -15,38 +15,70 @@ import pandas as pd
 from pathlib import Path
 
 def analyze_video(input_video_path, output_video_path):
+    input_path = Path(input_video_path)
+    output_path = Path(output_video_path)
 
-    # Read video frames
-    video_name = Path(input_video_path).stem
+    player_model_path = Path("yolo11l.pt")
+    ball_model_path = Path("models/yolov11best.pt")
+    court_model_path = Path("models/keypoints_model.pth")
 
-    player_stub_path = Path("tracker_stubs") / f"{video_name}_player_detections.pkl"
-    ball_stub_path = Path("tracker_stubs") / f"{video_name}_ball_detections.pkl"
+    required_files = {
+        "input video": input_path,
+        "player detection model": player_model_path,
+        "ball detection model": ball_model_path,
+        "court keypoint model": court_model_path,
+    }
+
+    missing_files = [
+        f"{description}: {path}"
+        for description, path in required_files.items()
+        if not path.is_file()
+    ]
+
+    if missing_files:
+        formatted_missing_files = "\n".join(
+            f"- {missing_file}" for missing_file in missing_files
+        )
+        raise FileNotFoundError(
+            f"Missing required files:\n{formatted_missing_files}"
+        )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    cache_directory = Path("tracker_stubs")
+    cache_directory.mkdir(parents=True, exist_ok=True)
+
+    video_name = input_path.stem
+    player_stub_path = (
+        cache_directory / f"{video_name}_player_detections.pkl"
+    )
+    ball_stub_path = (
+        cache_directory / f"{video_name}_ball_detections.pkl"
+    )
 
     video_frames, fps = read_video(input_video_path)
 
-    #Detect players and ball in video frames
-    player_tracker = PlayerTracker(model_path= "yolo11l")
-    ball_tracker = BallTracker(model_path= "models/yolov11best.pt")
+    # Detect players and ball
+    player_tracker = PlayerTracker(model_path=str(player_model_path))
+    ball_tracker = BallTracker(model_path=str(ball_model_path))
+
     player_detections = player_tracker.detect_frames(
-                                                        video_frames,
-                                                        read_from_stub=player_stub_path.exists(),
-                                                        stub_path=player_stub_path
-)
-    
+        video_frames,
+        read_from_stub=player_stub_path.exists(),
+        stub_path=player_stub_path,
+    )
+
     ball_detections = ball_tracker.detect_frames(
-                                                    video_frames,
-                                                    read_from_stub=ball_stub_path.exists(),
-                                                    stub_path=ball_stub_path
-)
-    #Interpolate ball positions
-    ball_detections = ball_tracker.interpolate_ball_positions(ball_detections) 
+        video_frames,
+        read_from_stub=ball_stub_path.exists(),
+        stub_path=ball_stub_path,
+    )
+    ball_detections = ball_tracker.interpolate_ball_positions(
+        ball_detections
+    )
 
-
-
-
-    #Court line detection
-    court_model_path = "models/keypoints_model.pth"
-    court_line_detector = CourtLineDetector(court_model_path)
+    # Detect court keypoints
+    court_line_detector = CourtLineDetector(str(court_model_path))
     court_keypoints = court_line_detector.predict(video_frames[0])
 
     #Choose and filter players based on court keypoints
