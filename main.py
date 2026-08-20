@@ -12,26 +12,33 @@ from mini_court import MiniCourt
 import cv2
 from copy import deepcopy
 import pandas as pd
+from pathlib import Path
 
 def main():
 
-    #read video frames
+    # Read video frames
     input_video_path = "input_videos/input_video.mp4"
-    video_frames , fps = read_video(input_video_path)
+    video_name = Path(input_video_path).stem
+
+    player_stub_path = Path("tracker_stubs") / f"{video_name}_player_detections.pkl"
+    ball_stub_path = Path("tracker_stubs") / f"{video_name}_ball_detections.pkl"
+
+    video_frames, fps = read_video(input_video_path)
 
     #Detect players and ball in video frames
     player_tracker = PlayerTracker(model_path= "yolo11l")
     ball_tracker = BallTracker(model_path= "models/yolov11best.pt")
-    player_detections = player_tracker.detect_frames(video_frames, 
-                                                     read_from_stub=True,
-                                                     stub_path="tracker_stubs/player_detections.pkl"
-                                                     )
+    player_detections = player_tracker.detect_frames(
+                                                        video_frames,
+                                                        read_from_stub=player_stub_path.exists(),
+                                                        stub_path=player_stub_path
+)
     
-    ball_detections = ball_tracker.detect_frames(video_frames, 
-                                                     read_from_stub=True,
-                                                     stub_path="tracker_stubs/ball_detections.pkl"
-                                                     )
-
+    ball_detections = ball_tracker.detect_frames(
+                                                    video_frames,
+                                                    read_from_stub=ball_stub_path.exists(),
+                                                    stub_path=ball_stub_path
+)
     #Interpolate ball positions
     ball_detections = ball_tracker.interpolate_ball_positions(ball_detections) 
 
