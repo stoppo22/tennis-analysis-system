@@ -17,7 +17,7 @@ def main():
 
     #read video frames
     input_video_path = "input_videos/input_video.mp4"
-    video_frames = read_video(input_video_path)
+    video_frames , fps = read_video(input_video_path)
 
     #Detect players and ball in video frames
     player_tracker = PlayerTracker(model_path= "yolo11l")
@@ -78,7 +78,7 @@ def main():
     for ball_shot_ind in range(len(ball_shot_frames)-1):
         start_frame = ball_shot_frames[ball_shot_ind]
         end_frame = ball_shot_frames[ball_shot_ind+1]
-        ball_shot_time_in_seconds = (end_frame - start_frame) / 24 #24 frames per second
+        ball_shot_time_in_seconds = (end_frame - start_frame) / fps
 
 
         #get distance covered by the ball 
@@ -169,7 +169,7 @@ def main():
         cv2.putText(frame, f"Frame: {i+1}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
     #Save output video
-    save_video(output_video_frames, "output_videos/output_video.avi")
+    save_video(output_video_frames, "output_videos/output_video.avi" , fps)
 
 if __name__ == "__main__":
     main()
