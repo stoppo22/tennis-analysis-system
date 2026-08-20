@@ -232,3 +232,14 @@ input_videos/*
 
 # Generated detection caches
 tracker_stubs/*.pkl
+
+# YOLO-generated runs
+runs/
+
+# Local training datasets
+training/**/train/
+training/**/valid/
+training/**/test/
+
+# Local Codex workspace notes
+.codex/
