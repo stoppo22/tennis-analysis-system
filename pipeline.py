@@ -11,8 +11,42 @@ from court_line_detector import CourtLineDetector
 from mini_court import MiniCourt
 import cv2
 from copy import deepcopy
+import hashlib
 import pandas as pd
 from pathlib import Path
+
+
+DETECTION_CACHE_VERSION = "1"
+
+
+def _calculate_file_sha256(file_path):
+    hasher = hashlib.sha256()
+
+    with file_path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            hasher.update(chunk)
+
+    return hasher.hexdigest()
+
+
+def _build_detection_cache_path(
+    cache_directory,
+    detector_name,
+    video_path,
+    model_path,
+):
+    cache_identity = "\0".join(
+        [
+            DETECTION_CACHE_VERSION,
+            detector_name,
+            _calculate_file_sha256(video_path),
+            _calculate_file_sha256(model_path),
+        ]
+    )
+    cache_digest = hashlib.sha256(cache_identity.encode("utf-8")).hexdigest()
+
+    return cache_directory / f"{detector_name}_{cache_digest}.pkl"
+
 
 def analyze_video(input_video_path, output_video_path):
     input_path = Path(input_video_path)
@@ -48,12 +82,17 @@ def analyze_video(input_video_path, output_video_path):
     cache_directory = Path("tracker_stubs")
     cache_directory.mkdir(parents=True, exist_ok=True)
 
-    video_name = input_path.stem
-    player_stub_path = (
-        cache_directory / f"{video_name}_player_detections.pkl"
+    player_stub_path = _build_detection_cache_path(
+        cache_directory=cache_directory,
+        detector_name="player_detections",
+        video_path=input_path,
+        model_path=player_model_path,
     )
-    ball_stub_path = (
-        cache_directory / f"{video_name}_ball_detections.pkl"
+    ball_stub_path = _build_detection_cache_path(
+        cache_directory=cache_directory,
+        detector_name="ball_detections",
+        video_path=input_path,
+        model_path=ball_model_path,
     )
 
     video_frames, fps = read_video(input_video_path)
@@ -216,5 +255,4 @@ def analyze_video(input_video_path, output_video_path):
 
     # Save output video
     save_video(output_video_frames, output_video_path, fps)
-
 
