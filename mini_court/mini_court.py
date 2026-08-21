@@ -229,8 +229,6 @@ class MiniCourt():
 
         
             output_player_bbox_dict = {}
-            output_ball_bboxes_dict = {}
-            
             for player_id,bbox in player_bbox.items():
                 foot_position = get_foot_position(bbox)
 
