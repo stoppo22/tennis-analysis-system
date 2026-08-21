@@ -2,6 +2,12 @@ import numpy as np
 import cv2
 
 
+def _format_speed(speed):
+    if np.isnan(speed):
+        return "N/A"
+    return f"{speed:.1f} km/h"
+
+
 
 def draw_player_stats(output_video_frames, player_stats):
     for index,row  in  player_stats.iterrows():
@@ -51,12 +57,12 @@ def draw_player_stats(output_video_frames, player_stats):
         
         text = "avg. S. Speed"
         output_video_frames[index] = cv2.putText(output_video_frames[index], text, (start_x+10, start_y+160), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
-        text = f"{avg_player_1_shot_speed:.1f} km/h    {avg_player_2_shot_speed:.1f} km/h"
+        text = f"{_format_speed(avg_player_1_shot_speed)}    {_format_speed(avg_player_2_shot_speed)}"
         output_video_frames[index] = cv2.putText(output_video_frames[index], text, (start_x+130, start_y+160), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
         
         text = "avg. P. Speed"
         output_video_frames[index] = cv2.putText(output_video_frames[index], text, (start_x+10, start_y+200), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
-        text = f"{avg_player_1_speed:.1f} km/h    {avg_player_2_speed:.1f} km/h"
+        text = f"{_format_speed(avg_player_1_speed)}    {_format_speed(avg_player_2_speed)}"
         output_video_frames[index] = cv2.putText(output_video_frames[index], text, (start_x+130, start_y+200), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     
     return output_video_frames
