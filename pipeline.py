@@ -2,6 +2,7 @@ from utils import (read_video,
                     save_video,
                     measure_distance,
                     draw_player_stats,
+                    build_player_stats_dataframe,
                     convert_pixel_distance_to_meters,
                     convert_meters_to_pixel_distance)
 
@@ -12,7 +13,6 @@ from mini_court import MiniCourt
 import cv2
 from copy import deepcopy
 import hashlib
-import pandas as pd
 from pathlib import Path
 
 
@@ -207,15 +207,10 @@ def analyze_video(input_video_path, output_video_path):
         player_stats_data.append(current_player_stats)
 
 
-    player_stats_data_df = pd.DataFrame(player_stats_data)
-    frames_df = pd.DataFrame({'frame_num': list(range(len(video_frames)))})
-    player_stats_data_df = pd.merge(frames_df, player_stats_data_df, on='frame_num', how='left')
-    player_stats_data_df = player_stats_data_df.ffill() 
-
-    player_stats_data_df["player_1_average_shot_speed"] = player_stats_data_df["player_1_total_shot_speed"] / player_stats_data_df["player_1_number_of_shots"]
-    player_stats_data_df["player_2_average_shot_speed"] = player_stats_data_df["player_2_total_shot_speed"] / player_stats_data_df["player_2_number_of_shots"]
-    player_stats_data_df["player_1_average_player_speed"] = player_stats_data_df["player_1_total_player_speed"] /  player_stats_data_df["player_2_number_of_shots"]
-    player_stats_data_df["player_2_average_player_speed"] = player_stats_data_df["player_2_total_player_speed"] / player_stats_data_df["player_1_number_of_shots"]
+    player_stats_data_df = build_player_stats_dataframe(
+        player_stats_data,
+        frame_count=len(video_frames),
+    )
 
     
 
@@ -255,4 +250,3 @@ def analyze_video(input_video_path, output_video_path):
 
     # Save output video
     save_video(output_video_frames, output_video_path, fps)
-
