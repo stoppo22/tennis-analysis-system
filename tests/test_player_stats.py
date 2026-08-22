@@ -8,6 +8,7 @@ import pandas as pd
 from utils.player_stats_drawer_utils import _format_speed
 from utils.player_stats_utils import (
     build_player_stats_dataframe,
+    calculate_player_stats_data,
     resolve_statistics_output_path,
     save_player_stats_csv,
 )
@@ -30,6 +31,53 @@ def initial_stats():
 
 
 class PlayerStatsTest(unittest.TestCase):
+    def test_shots_are_counted_on_their_own_frames(self):
+        player_positions = [
+            {1: (0, 10), 2: (0, 0)}
+            for _ in range(11)
+        ]
+        ball_positions = [
+            {1: (0, 5)}
+            for _ in range(11)
+        ]
+        ball_positions[0] = {1: (0, 10)}
+        ball_positions[5] = {1: (0, 0)}
+        ball_positions[10] = {1: (0, 10)}
+
+        stats_data = calculate_player_stats_data(
+            ball_shot_frames=[0, 5, 10],
+            player_positions=player_positions,
+            ball_positions=ball_positions,
+            fps=5,
+            mini_court_width=10,
+        )
+        stats = build_player_stats_dataframe(stats_data, frame_count=11)
+
+        self.assertEqual(
+            stats.loc[0, [
+                "player_1_number_of_shots",
+                "player_2_number_of_shots",
+            ]].tolist(),
+            [1, 0],
+        )
+        self.assertEqual(
+            stats.loc[5, [
+                "player_1_number_of_shots",
+                "player_2_number_of_shots",
+            ]].tolist(),
+            [1, 1],
+        )
+        self.assertEqual(
+            stats.loc[10, [
+                "player_1_number_of_shots",
+                "player_2_number_of_shots",
+            ]].tolist(),
+            [2, 1],
+        )
+        self.assertFalse(
+            any(column.endswith("_samples") for column in stats.columns)
+        )
+
     def test_default_statistics_path_uses_video_name(self):
         statistics_path = resolve_statistics_output_path(
             "output_videos/match.avi"

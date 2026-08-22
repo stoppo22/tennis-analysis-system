@@ -3,6 +3,8 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 import cv2
 
+from utils.visualization_utils import KEYPOINT_COLOR
+
 class CourtLineDetector:
     def __init__(self,model_path):
         self.model = models.resnet50(weights=None)
@@ -37,20 +39,36 @@ class CourtLineDetector:
         return keypoints 
     
 
-    def draw_keypoints(self, image, keypoints):
-        # Plot keypoints on the image
+    def draw_keypoints(self, image, keypoints, show_labels=True):
         for i in range(0, len(keypoints), 2):
             x = int(keypoints[i])
             y = int(keypoints[i+1])
-            cv2.putText(image, str(i//2), (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv2.circle(image, (x, y), 5, (0, 0, 255), -1)
+            if show_labels:
+                cv2.putText(
+                    image,
+                    str(i // 2),
+                    (x, y - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.45,
+                    (0, 0, 255),
+                    1,
+                    cv2.LINE_AA,
+                )
+            color = (0, 0, 255) if show_labels else KEYPOINT_COLOR
+            radius = 5 if show_labels else 3
+            cv2.circle(image, (x, y), radius, color, -1, cv2.LINE_AA)
         return image
     
 
-    def draw_keypoints_on_video(self, video_frames, keypoints):
+    def draw_keypoints_on_video(
+        self,
+        video_frames,
+        keypoints,
+        show_labels=True,
+    ):
         output_video_frames = []
         for frame in video_frames:
-            frame = self.draw_keypoints(frame, keypoints)
+            frame = self.draw_keypoints(frame, keypoints, show_labels)
             output_video_frames.append(frame)
  
         return output_video_frames

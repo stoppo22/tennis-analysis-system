@@ -5,6 +5,7 @@ from .conversions import convert_pixel_distance_to_meters, convert_meters_to_pix
 from .player_stats_drawer_utils import draw_player_stats
 from .player_stats_utils import (
     build_player_stats_dataframe,
+    calculate_player_stats_data,
     resolve_statistics_output_path,
     save_player_stats_csv,
 )

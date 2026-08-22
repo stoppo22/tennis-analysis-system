@@ -3,6 +3,8 @@ from ultralytics import YOLO
 import cv2
 import  pickle
 
+from utils.visualization_utils import BALL_COLOR, draw_corner_box
+
 from utils.shot_detection_utils import (
     DEFAULT_SHOT_PERSISTENCE_SECONDS,
     DEFAULT_SMOOTHING_SECONDS,
@@ -65,11 +67,19 @@ class BallTracker:
     def draw_bboxes(self,video_frames, player_detections):
         output_video_frames = []
         for frame, ball_dict in zip(video_frames, player_detections):
-            #Draw the bounding boxes on the frame
-            for track_id, bbox in ball_dict.items():
-                x1, y1, x2, y2 = bbox
-                cv2.putText(frame, f"Ball ID: {track_id}",(int(bbox[0]),int(bbox[1] -10 )),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 2)
-                cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 255), 2)
+            for bbox in ball_dict.values():
+                draw_corner_box(
+                    frame,
+                    bbox,
+                    BALL_COLOR,
+                    corner_length=8,
+                    thickness=2,
+                )
+                center = (
+                    int((bbox[0] + bbox[2]) / 2),
+                    int((bbox[1] + bbox[3]) / 2),
+                )
+                cv2.circle(frame, center, 3, BALL_COLOR, -1, cv2.LINE_AA)
             output_video_frames.append(frame)
         
         return output_video_frames

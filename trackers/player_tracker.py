@@ -5,6 +5,11 @@ import  pickle
 import sys
 sys.path.append("../")
 from utils import getCenter, measure_distance
+from utils.visualization_utils import (
+    draw_corner_box,
+    draw_label,
+    get_player_color,
+)
 
 class PlayerTracker:
     def __init__(self, model_path):
@@ -14,10 +19,31 @@ class PlayerTracker:
     def choose_and_filter_players(self, court_keypoints, player_detections):
         player_detections_first_frame = player_detections[0]
         chosen_players = self.choose_players(court_keypoints, player_detections_first_frame)
+        ordered_players = sorted(
+            chosen_players,
+            key=lambda track_id: player_detections_first_frame[track_id][3],
+            reverse=True,
+        )
+        logical_id_by_track_id = {
+            track_id: logical_id
+            for logical_id, track_id in enumerate(ordered_players, start=1)
+        }
+
         filtered_player_detections = []
+        last_known_bboxes = {}
         for player_dict in player_detections:
-            filtered_player_dict = {track_id: bbox for track_id, bbox in player_dict.items() if track_id in chosen_players}
-            filtered_player_detections.append(filtered_player_dict)
+            for track_id, logical_id in logical_id_by_track_id.items():
+                if track_id in player_dict:
+                    last_known_bboxes[logical_id] = player_dict[track_id]
+
+            missing_players = {1, 2} - last_known_bboxes.keys()
+            if missing_players:
+                raise ValueError(
+                    "Selected players are missing before their positions can "
+                    f"be initialized: {sorted(missing_players)}"
+                )
+
+            filtered_player_detections.append(dict(last_known_bboxes))
         return filtered_player_detections
 
     def choose_players(self, court_keypoints, player_dict):
@@ -89,11 +115,15 @@ class PlayerTracker:
     def draw_bboxes(self,video_frames, player_detections):
         output_video_frames = []
         for frame, player_dict in zip(video_frames, player_detections):
-            #Draw the bounding boxes on the frame
             for track_id, bbox in player_dict.items():
-                x1, y1, x2, y2 = bbox
-                cv2.putText(frame, f"Player ID: {track_id}",(int(bbox[0]),int(bbox[1] -10 )),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-                cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)
+                color = get_player_color(track_id)
+                draw_corner_box(frame, bbox, color)
+                draw_label(
+                    frame,
+                    f"P{track_id}",
+                    (bbox[0], bbox[1] - 8),
+                    color,
+                )
             output_video_frames.append(frame)
         
         return output_video_frames

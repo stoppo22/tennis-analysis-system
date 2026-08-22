@@ -12,13 +12,22 @@ from utils import (convert_meters_to_pixel_distance,
                    measure_xy_distance,
                    get_center_of_bbox,
                    measure_distance)
+from utils.visualization_utils import (
+    KEYPOINT_COLOR,
+    draw_translucent_panel,
+    get_player_color,
+)
 
 class MiniCourt():
     def __init__(self, frame):
-        self.drawing_rectangle_width = 250
-        self.drawing_rectangle_height = 500
-        self.buffer = 50
-        self.padding_court = 20
+        self.scale = max(
+            0.55,
+            min(frame.shape[1] / 1920, frame.shape[0] / 1080),
+        )
+        self.drawing_rectangle_width = round(250 * self.scale)
+        self.drawing_rectangle_height = round(540 * self.scale)
+        self.buffer = round(50 * self.scale)
+        self.padding_court = round(25 * self.scale)
         
         self.set_canvas_background_box_position(frame)
         self.set_mini_court_position()
@@ -100,7 +109,7 @@ class MiniCourt():
 
     def set_mini_court_position(self):
         self.court_start_x = self.start_x + self.padding_court
-        self.court_start_y = self.start_y + self.padding_court
+        self.court_start_y = self.start_y + round(55 * self.scale)
         self.court_end_x = self.end_x - self.padding_court
         self.court_end_y = self.end_y - self.padding_court
         self.court_drawing_width = self.court_end_x - self.court_start_x
@@ -109,22 +118,42 @@ class MiniCourt():
 
 
     def draw_court(self, frame):
-        for i in range(0,len(self.drawing_key_points), 2):
-            x = int(self.drawing_key_points[i])
-            y = int(self.drawing_key_points[i+1])
-            cv2.circle(frame, (x, y), 5, (0, 0, 255), -1)
+        court_corners = np.array(
+            [
+                self.drawing_key_points[0:2],
+                self.drawing_key_points[2:4],
+                self.drawing_key_points[6:8],
+                self.drawing_key_points[4:6],
+            ],
+            dtype=np.int32,
+        )
+        cv2.fillConvexPoly(frame, court_corners, (58, 48, 24), cv2.LINE_AA)
 
         #draw lines
         for line in self.lines:
             start_point = (int(self.drawing_key_points[line[0]*2]), int(self.drawing_key_points[line[0]*2 + 1]))
             end_point = (int(self.drawing_key_points[line[1]*2]), int(self.drawing_key_points[line[1]*2 + 1]))
-            cv2.line(frame, start_point, end_point, (0, 0, 0), 2)
+            cv2.line(
+                frame,
+                start_point,
+                end_point,
+                (230, 239, 244),
+                max(1, round(2 * self.scale)),
+                cv2.LINE_AA,
+            )
 
 
         #draw net
         net_start_point = (self.drawing_key_points[0], int((self.drawing_key_points[1] + self.drawing_key_points[5])/2))
         net_end_point = (self.drawing_key_points[2], int((self.drawing_key_points[1] + self.drawing_key_points[5])/2))
-        cv2.line(frame, net_start_point, net_end_point, (255, 0, 0), 2)
+        cv2.line(
+            frame,
+            net_start_point,
+            net_end_point,
+            (130, 112, 255),
+            max(1, round(2 * self.scale)),
+            cv2.LINE_AA,
+        )
 
 
         return frame
@@ -143,16 +172,37 @@ class MiniCourt():
 
 
     def draw_background_rectangle(self, frame):
-        shapes = np.zeros_like(frame, np.uint8)
-        #Draw the rectangle
-        cv2.rectangle(shapes, (self.start_x, self.start_y), (self.end_x, self.end_y), (255, 255, 255), cv2.FILLED)
-        out= frame.copy()
-        alpha = 0.5
-        mask = shapes.astype(bool)
-        out[mask] = cv2.addWeighted(frame, alpha, shapes,1- alpha, 0)[mask]
-        
-
-        return out
+        draw_translucent_panel(
+            frame,
+            (self.start_x, self.start_y),
+            (self.end_x, self.end_y),
+            radius=max(9, round(16 * self.scale)),
+        )
+        cv2.circle(
+            frame,
+            (
+                self.start_x + round(20 * self.scale),
+                self.start_y + round(25 * self.scale),
+            ),
+            max(3, round(4 * self.scale)),
+            KEYPOINT_COLOR,
+            -1,
+            cv2.LINE_AA,
+        )
+        cv2.putText(
+            frame,
+            "LIVE COURT",
+            (
+                self.start_x + round(32 * self.scale),
+                self.start_y + round(31 * self.scale),
+            ),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            max(0.38, 0.55 * self.scale),
+            (242, 245, 248),
+            1,
+            cv2.LINE_AA,
+        )
+        return frame
     
 
     def draw_mini_court(self, frames):
@@ -269,11 +319,36 @@ class MiniCourt():
             output_player_boxes.append(output_player_bbox_dict)
         return  output_player_boxes, output_ball_boxes
 
-    def draw_points_on_mini_court(self,frames,positions,color=(0,255,0)):
+    def draw_points_on_mini_court(self, frames, positions, color=None):
         for frame_num , frame in enumerate(frames):
-            for _, position in positions[frame_num].items():
+            for object_id, position in positions[frame_num].items():
                 x,y = position
                 x = int(x)
                 y = int(y)
-                cv2.circle(frame, (x, y), 5, color, -1)
-        return  frames
+                point_color = color or get_player_color(object_id)
+                cv2.circle(
+                    frame,
+                    (x, y),
+                    max(6, round(9 * self.scale)),
+                    (18, 23, 31),
+                    -1,
+                    cv2.LINE_AA,
+                )
+                cv2.circle(
+                    frame,
+                    (x, y),
+                    max(4, round(6 * self.scale)),
+                    point_color,
+                    -1,
+                    cv2.LINE_AA,
+                )
+                if color is not None:
+                    cv2.circle(
+                        frame,
+                        (x, y),
+                        max(1, round(2 * self.scale)),
+                        (255, 255, 255),
+                        -1,
+                        cv2.LINE_AA,
+                    )
+        return frames
