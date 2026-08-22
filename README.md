@@ -96,7 +96,7 @@ three files at the exact paths below before running the pipeline:
 | Local path | Purpose | Source and status |
 | --- | --- | --- |
 | `yolo11l.pt` | Player detection | Official [Ultralytics YOLO11](https://docs.ultralytics.com/models/yolo11/) pretrained checkpoint. Ultralytics documents AGPL-3.0 and Enterprise licensing options. |
-| `models/yolov11best.pt` | Tennis-ball detection | Project-specific fine-tuned checkpoint. It is not currently redistributed; use the training instructions below to recreate it. |
+| `models/yolov11best.pt` | Tennis-ball detection | Project-specific fine-tuned checkpoint. See its [model card](docs/ball-detector-model-card.md) for training metadata, metrics, licence, and limitations. It is not currently redistributed; use the training instructions below to recreate it. |
 | `models/keypoints_model.pth` | Court keypoint prediction | Download the [pretrained court model linked by the tutorial author](https://drive.google.com/file/d/1QrTOF1ToQ4plsSZbkBs3zOLkVt3MBlta/view?usp=sharing) and rename it exactly. Its redistribution licence has not been verified, so the file is kept local. |
 
 Download the official player detector through the pinned Ultralytics package:
@@ -126,7 +126,9 @@ The ball-training notebook uses version 6 of Viren Dhanwani's
 [Tennis Ball Detection dataset](https://universe.roboflow.com/viren-dhanwani/tennis-ball-detection/dataset/6),
 published under CC BY 4.0. Open
 `training/tennis_ball_detector_training.ipynb`, train the YOLO11 model, and copy
-the resulting `best.pt` checkpoint to `models/yolov11best.pt`.
+the resulting `best.pt` checkpoint to `models/yolov11best.pt`. The exact local
+checkpoint used by the project is documented in its
+[model card](docs/ball-detector-model-card.md).
 
 The notebook reads the Roboflow private API key from the
 `ROBOFLOW_API_KEY` environment variable. Set it in the environment that starts
