@@ -1,0 +1,44 @@
+Tennis Analysis System
+Copyright (c) 2026 Emanuele Stopponi
+
+PROJECT ORIGIN
+
+The initial pipeline was developed while following Abdullah Tarek's
+"Build an AI/ML Tennis Analysis System" tutorial:
+
+https://github.com/abdullahtarek/tennis_analysis
+https://www.youtube.com/watch?v=L23oIHZE14w
+
+This attribution applies to the tutorial-based starting point, not to the
+subsequent project-specific work listed below.
+
+PROJECT-SPECIFIC WORK
+
+I extended the tutorial baseline through guided development and learning,
+including:
+
+- a reusable and validated end-to-end pipeline;
+- content-addressed detection caching;
+- source-FPS handling and frame-rate-normalized shot detection;
+- structured per-frame CSV statistics;
+- a manually annotated, video-separated shot-event benchmark;
+- one-to-one temporal event evaluation;
+- development-set error analysis and a measured F1 improvement;
+- automated tests and GitHub Actions;
+- player-role synchronization and corrected statistics;
+- a redesigned mini court, statistics dashboard, and visual demo;
+- repository-history cleanup and reproducibility documentation.
+
+THIRD-PARTY COMPONENTS
+
+Ultralytics YOLO code and trained models are subject to AGPL-3.0 or the
+applicable Ultralytics commercial licence.
+
+The Tennis Ball Detection dataset by Viren Dhanwani is distributed under
+CC BY 4.0.
+
+The tutorial author's court-keypoint model and dataset retain their respective
+rights. No unverified redistribution licence is claimed for them.
+
+The README demo contains a short modified excerpt from the official Wimbledon
+YouTube channel. It is not covered by the repository's software licence.

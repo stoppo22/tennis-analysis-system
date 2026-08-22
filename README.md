@@ -191,6 +191,20 @@ through 213.
 When used from Python, `analyze_video()` returns a dictionary containing the
 two output paths, FPS, frame count, duration, and detected shot frames.
 
+## License and attribution
+
+This repository is distributed under the
+[GNU Affero General Public License v3.0](LICENSE), consistent with the
+open-source licence used by Ultralytics YOLO code and trained models. Commercial
+or proprietary uses may require a separate Ultralytics licence.
+
+The initial pipeline was developed by following Abdullah Tarek's tutorial. The
+subsequent engineering, evaluation, testing, documentation, and interface work
+is separated explicitly in [NOTICE](NOTICE), together with the relevant
+third-party attributions. External datasets, model weights, and video footage
+retain their own terms and are not automatically covered by the repository's
+software licence.
+
 ## Current limitations
 
 - The benchmark contains only two short clips and 54 annotated in-play shots.
