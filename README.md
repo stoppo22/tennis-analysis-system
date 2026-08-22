@@ -3,7 +3,8 @@
 Computer-vision project that analyses tennis videos with Python, OpenCV,
 PyTorch, and YOLO. The pipeline detects players and the ball, estimates court
 keypoints, maps movement onto a mini court, identifies shot events, calculates
-speed statistics, and produces an annotated video.
+speed statistics, and produces an annotated video plus per-frame statistics in
+CSV format.
 
 ## Project status: v0.6
 
@@ -130,8 +131,31 @@ python main.py \
   --output output_videos/output_video.avi
 ```
 
-The output is an annotated video containing detections, court keypoints, the
-mini court, and player statistics.
+By default, this creates both:
+
+```text
+output_videos/output_video.avi
+output_videos/output_video_statistics.csv
+```
+
+Choose a different CSV path when needed:
+
+```bash
+python main.py \
+  --input input_videos/input_video.mp4 \
+  --output output_videos/output_video.avi \
+  --statistics-output results/match_statistics.csv
+```
+
+The video contains detections, court keypoints, the mini court, and player
+statistics. The CSV contains one row per video frame, including cumulative shot
+counts and the latest and average estimated shot and player speeds. An empty
+average means that no corresponding speed sample was available at that frame.
+Its `frame_num` column is zero-based, so a 214-frame video uses values from 0
+through 213.
+
+When used from Python, `analyze_video()` returns a dictionary containing the
+two output paths, FPS, frame count, duration, and detected shot frames.
 
 ## Current limitations
 
@@ -142,6 +166,8 @@ mini court, and player statistics.
   trajectory tests and a local 30 FPS smoke test, not a multi-FPS benchmark.
 - The benchmark videos are kept local and are not redistributed because an
   explicit reusable licence has not been verified.
+- The player and ball speed estimates exported to CSV have not been evaluated
+  against ground-truth speeds.
 - Model weights, input videos, generated outputs, and detection caches are not
   stored in Git.
 

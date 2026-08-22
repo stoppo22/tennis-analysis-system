@@ -3,6 +3,8 @@ from utils import (read_video,
                     measure_distance,
                     draw_player_stats,
                     build_player_stats_dataframe,
+                    resolve_statistics_output_path,
+                    save_player_stats_csv,
                     convert_pixel_distance_to_meters,
                     convert_meters_to_pixel_distance)
 
@@ -52,9 +54,18 @@ def _build_detection_cache_path(
     return cache_directory / f"{detector_name}_{cache_digest}.pkl"
 
 
-def analyze_video(input_video_path, output_video_path):
+def analyze_video(
+    input_video_path,
+    output_video_path,
+    statistics_output_path=None,
+):
+    """Analyze a video and return paths plus basic processing metadata."""
     input_path = Path(input_video_path)
     output_path = Path(output_video_path)
+    statistics_path = resolve_statistics_output_path(
+        output_path,
+        statistics_output_path,
+    )
 
     player_model_path = Path("yolo11l.pt")
     ball_model_path = Path("models/yolov11best.pt")
@@ -259,3 +270,13 @@ def analyze_video(input_video_path, output_video_path):
 
     # Save output video
     save_video(output_video_frames, output_video_path, fps)
+    save_player_stats_csv(player_stats_data_df, statistics_path)
+
+    return {
+        "output_video_path": str(output_path),
+        "statistics_csv_path": str(statistics_path),
+        "fps": fps,
+        "frame_count": len(video_frames),
+        "duration_seconds": len(video_frames) / fps,
+        "detected_shot_frames": [int(frame) for frame in ball_shot_frames],
+    }

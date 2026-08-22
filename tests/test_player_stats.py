@@ -1,8 +1,16 @@
 import math
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 
+import pandas as pd
+
 from utils.player_stats_drawer_utils import _format_speed
-from utils.player_stats_utils import build_player_stats_dataframe
+from utils.player_stats_utils import (
+    build_player_stats_dataframe,
+    resolve_statistics_output_path,
+    save_player_stats_csv,
+)
 
 
 def initial_stats():
@@ -22,6 +30,56 @@ def initial_stats():
 
 
 class PlayerStatsTest(unittest.TestCase):
+    def test_default_statistics_path_uses_video_name(self):
+        statistics_path = resolve_statistics_output_path(
+            "output_videos/match.avi"
+        )
+
+        self.assertEqual(
+            statistics_path,
+            Path("output_videos/match_statistics.csv"),
+        )
+
+    def test_explicit_statistics_path_is_preserved(self):
+        statistics_path = resolve_statistics_output_path(
+            "output_videos/match.avi",
+            "results/match.csv",
+        )
+
+        self.assertEqual(statistics_path, Path("results/match.csv"))
+
+    def test_statistics_cannot_overwrite_video(self):
+        with self.assertRaisesRegex(ValueError, "must be different"):
+            resolve_statistics_output_path(
+                "output_videos/match.avi",
+                "output_videos/match.avi",
+            )
+
+    def test_save_player_stats_csv_creates_parent_and_excludes_index(self):
+        statistics = pd.DataFrame(
+            {
+                "frame_num": [0, 1],
+                "player_1_number_of_shots": [0, 1],
+            }
+        )
+
+        with TemporaryDirectory() as temporary_directory:
+            output_path = (
+                Path(temporary_directory) / "nested" / "statistics.csv"
+            )
+
+            saved_path = save_player_stats_csv(statistics, output_path)
+            loaded_statistics = pd.read_csv(saved_path)
+
+        self.assertEqual(saved_path, output_path)
+        self.assertEqual(
+            loaded_statistics.to_dict(orient="list"),
+            {
+                "frame_num": [0, 1],
+                "player_1_number_of_shots": [0, 1],
+            },
+        )
+
     def test_averages_are_unavailable_without_samples(self):
         stats = build_player_stats_dataframe([initial_stats()], frame_count=3)
 

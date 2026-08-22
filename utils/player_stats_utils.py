@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -5,6 +7,35 @@ def _average_with_available_samples(total_values, sample_counts):
     """Return averages only where at least one sample is available."""
     averages = total_values / sample_counts
     return averages.where(sample_counts > 0)
+
+
+def resolve_statistics_output_path(
+    output_video_path,
+    statistics_output_path=None,
+):
+    """Return the requested CSV path or derive one from the video path."""
+    video_path = Path(output_video_path)
+    if statistics_output_path is None:
+        statistics_path = video_path.with_name(
+            f"{video_path.stem}_statistics.csv"
+        )
+    else:
+        statistics_path = Path(statistics_output_path)
+
+    if statistics_path.resolve() == video_path.resolve():
+        raise ValueError(
+            "Statistics output path and video output path must be different"
+        )
+
+    return statistics_path
+
+
+def save_player_stats_csv(player_stats, output_path):
+    """Save per-frame player statistics without a DataFrame index column."""
+    statistics_path = Path(output_path)
+    statistics_path.parent.mkdir(parents=True, exist_ok=True)
+    player_stats.to_csv(statistics_path, index=False)
+    return statistics_path
 
 
 def build_player_stats_dataframe(player_stats_data, frame_count):
