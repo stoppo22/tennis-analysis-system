@@ -1,12 +1,14 @@
 # Tennis Analysis System
 
+[![Tests](https://github.com/stoppo22/tennis-analysis-system/actions/workflows/tests.yml/badge.svg)](https://github.com/stoppo22/tennis-analysis-system/actions/workflows/tests.yml)
+
 Computer-vision project that analyses tennis videos with Python, OpenCV,
 PyTorch, and YOLO. The pipeline detects players and the ball, estimates court
 keypoints, maps movement onto a mini court, identifies shot events, calculates
 speed statistics, and produces an annotated video plus per-frame statistics in
 CSV format.
 
-## Project status: v0.6
+## Project status: v1.0 release candidate
 
 The project now includes a small, video-separated benchmark for tennis-shot
 detection and a measured improvement over the original rule:
@@ -15,6 +17,12 @@ detection and a measured improvement over the original rule:
 | --- | ---: | ---: |
 | Development | 0.7500 | 0.8293 |
 | Test | 0.5806 | 0.6875 |
+
+On the held-out test video, this is an `18.4%` relative F1 improvement. Recall
+increased from `0.6000` to `0.7333`, false negatives decreased from `6` to `4`,
+and mean absolute timing error decreased from `0.0578 s` to `0.0509 s`. These
+figures come from a deliberately small two-video benchmark and are not a claim
+of broad generalization.
 
 The improvement was selected using only the development video and then
 evaluated once on the test video. Event evaluation uses one-to-one matching
@@ -25,6 +33,11 @@ In v0.6, the shot detector's persistence and smoothing thresholds are expressed
 as durations instead of fixed frame counts. They are converted using each
 video's FPS, while preserving the frozen v0.5 behavior exactly at 25 FPS. This
 is a frame-rate normalization change, not a new F1 improvement claim.
+
+The implementation, automated tests, visual demo, model card, licensing, and
+clean-clone setup verification are now complete. The `v1.0` tag has not been
+created yet: the remaining release step is to attach the documented ball
+checkpoint outside Git and verify that download from a clean clone.
 
 See the [benchmark documentation](benchmark/README.md) for the annotation
 protocol, source information, complete metrics, error analysis, and known
@@ -55,7 +68,7 @@ clip are not included in the repository.
 | `v0.3` | `dfd62f0` | Player-statistics logic extracted, corrected, clarified, and covered by automated tests. |
 | `v0.5` | `ed1f8bc` | Video-separated benchmark, one-to-one event evaluation, development-set error analysis, and measured shot-detection improvement. |
 | `v0.6` | `e65b6bf` | Shot-detection thresholds normalized by video FPS while preserving the v0.5 results at 25 FPS. |
-| Post-v0.6 | `74f7430` onward | Repository history cleaned, structured CSV export added, and the training notebooks and local asset setup prepared for v1.0. |
+| Post-v0.6 | `74f7430` onward | History cleanup, structured CSV export, notebook cleanup, CI, redesigned overlays, model documentation, licensing, visual demo, and clean-clone verification. |
 
 There is intentionally no `v0.4` tag. The benchmark implementation and the
 measured v0.5 improvement were committed together, so the repository does not
@@ -72,6 +85,23 @@ different video frame rates.
 
 The tutorial baseline and its original pretrained court model are available in
 [Abdullah Tarek's tennis analysis repository](https://github.com/abdullahtarek/tennis_analysis).
+
+### My work beyond the tutorial
+
+Through guided development and learning, I extended the starting point with:
+
+- a reusable CLI pipeline, validation, source-FPS handling, and
+  content-addressed detection caches;
+- corrected player statistics and a structured per-frame CSV export;
+- a manually annotated 54-event benchmark split by source video;
+- one-to-one temporal event matching and development-only error analysis that
+  improved held-out shot-detection F1 by `18.4%` relative (`0.5806` to
+  `0.6875`) while reducing false negatives from `6` to `4`;
+- FPS-normalized detection thresholds that preserve the frozen 25 FPS results;
+- 41 automated tests, GitHub Actions, and a verified clean-clone setup;
+- stable player roles, redesigned overlays, a mini court, and a visual demo;
+- repository-history cleanup, model documentation, and explicit licensing and
+  attribution.
 
 ## Local setup
 
@@ -244,10 +274,15 @@ software licence.
   not stored in Git. The short compressed GIF above is the only generated-video
   excerpt included for demonstration.
 
-## Next milestone
+## Release candidate checklist
 
-The repository history cleanup, automated CI, version history, visual demo,
-ball-detector model card, and clean-clone setup verification are complete.
-Before v1.0, the remaining work is to publish the project-specific ball
-checkpoint outside Git, repeat the asset-download smoke test, and finish the
-CV-ready project description.
+Completed: pipeline, benchmark, measured improvement, automated tests, history
+cleanup, model card, licensing, visual demo, and clean-clone setup verification.
+
+Before creating the `v1.0` tag, the remaining required steps are:
+
+1. attach `yolov11best.pt` to the GitHub release without adding it to Git;
+2. download the asset into a clean clone and verify its SHA-256;
+3. run the final local video smoke test;
+4. publish the release notes and CV description using only the measured claims
+   documented above.
