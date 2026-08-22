@@ -229,6 +229,7 @@ models/keypoints_model.pth
 # Model weights
 *.pt
 *.pth
+models/*.zip
 
 # Input videos
 input_videos/*

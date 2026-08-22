@@ -28,9 +28,10 @@ notebook cleanup.
 | Ultralytics version recorded in the checkpoint | `8.3.179` |
 | Checkpoint date | 2025-08-15 |
 
-The checkpoint remains outside the Git history. Its distribution as a release
-asset is planned for v1.0. Until that asset is published, it can be recreated
-with `training/tennis_ball_detector_training.ipynb`.
+The checkpoint remains outside the Git history and is distributed as a
+[`v1.0` release asset](https://github.com/stoppo22/tennis-analysis-system/releases/download/v1.0/yolov11best.pt).
+It can also be recreated with
+`training/tennis_ball_detector_training.ipynb`.
 
 ## Training data
 

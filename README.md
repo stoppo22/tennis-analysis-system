@@ -8,7 +8,7 @@ keypoints, maps movement onto a mini court, identifies shot events, calculates
 speed statistics, and produces an annotated video plus per-frame statistics in
 CSV format.
 
-## Project status: v1.0 release candidate
+## Project status: v1.0
 
 The project now includes a small, video-separated benchmark for tennis-shot
 detection and a measured improvement over the original rule:
@@ -34,10 +34,10 @@ as durations instead of fixed frame counts. They are converted using each
 video's FPS, while preserving the frozen v0.5 behavior exactly at 25 FPS. This
 is a frame-rate normalization change, not a new F1 improvement claim.
 
-The implementation, automated tests, visual demo, model card, licensing, and
-clean-clone setup verification are now complete. The `v1.0` tag has not been
-created yet: the remaining release step is to attach the documented ball
-checkpoint outside Git and verify that download from a clean clone.
+The implementation, automated tests, visual demo, model card, licensing,
+history cleanup, clean-clone setup verification, and final local video smoke
+test are complete. The fine-tuned ball checkpoint is distributed outside the
+Git history as a `v1.0` release asset.
 
 See the [benchmark documentation](benchmark/README.md) for the annotation
 protocol, source information, complete metrics, error analysis, and known
@@ -132,9 +132,8 @@ completed successfully. The CLI also reported the missing input and three
 required model files clearly when run without local assets.
 
 This verifies the clean setup, dependency set, tests, and command-line entry
-point. A complete clean-clone video analysis still depends on publishing the
-project-specific ball checkpoint as a v1.0 release asset and supplying the
-other documented local assets.
+point. Running a complete video analysis additionally requires the three local
+assets documented below and an input video.
 
 ## Required local assets
 
@@ -144,13 +143,20 @@ three files at the exact paths below before running the pipeline:
 | Local path | Purpose | Source and status |
 | --- | --- | --- |
 | `yolo11l.pt` | Player detection | Official [Ultralytics YOLO11](https://docs.ultralytics.com/models/yolo11/) pretrained checkpoint. Ultralytics documents AGPL-3.0 and Enterprise licensing options. |
-| `models/yolov11best.pt` | Tennis-ball detection | Project-specific fine-tuned checkpoint. See its [model card](docs/ball-detector-model-card.md) for training metadata, metrics, licence, and limitations. It is not currently redistributed; use the training instructions below to recreate it. |
+| `models/yolov11best.pt` | Tennis-ball detection | Project-specific fine-tuned checkpoint, available as a [`v1.0` release asset](https://github.com/stoppo22/tennis-analysis-system/releases/download/v1.0/yolov11best.pt). See its [model card](docs/ball-detector-model-card.md) for training metadata, metrics, licence, and limitations. |
 | `models/keypoints_model.pth` | Court keypoint prediction | Download the [pretrained court model linked by the tutorial author](https://drive.google.com/file/d/1QrTOF1ToQ4plsSZbkBs3zOLkVt3MBlta/view?usp=sharing) and rename it exactly. Its redistribution licence has not been verified, so the file is kept local. |
 
 Download the official player detector through the pinned Ultralytics package:
 
 ```bash
 python -c 'from ultralytics import YOLO; YOLO("yolo11l.pt")'
+```
+
+Download the project-specific ball detector into its expected local path:
+
+```bash
+curl -L https://github.com/stoppo22/tennis-analysis-system/releases/download/v1.0/yolov11best.pt \
+  -o models/yolov11best.pt
 ```
 
 Reference SHA-256 checksums for the exact local weights used during development
@@ -274,15 +280,10 @@ software licence.
   not stored in Git. The short compressed GIF above is the only generated-video
   excerpt included for demonstration.
 
-## Release candidate checklist
+## Release verification
 
-Completed: pipeline, benchmark, measured improvement, automated tests, history
-cleanup, model card, licensing, visual demo, and clean-clone setup verification.
-
-Before creating the `v1.0` tag, the remaining required steps are:
-
-1. attach `yolov11best.pt` to the GitHub release without adding it to Git;
-2. download the asset into a clean clone and verify its SHA-256;
-3. run the final local video smoke test;
-4. publish the release notes and CV description using only the measured claims
-   documented above.
+The `v1.0` release includes the documented ball checkpoint as a release asset,
+without adding model weights to the Git history. Its identity can be checked
+against the SHA-256 above. The final local end-to-end smoke test produced a
+readable 575-frame, 25 FPS, 1280x720 annotated video and a complete 575-row CSV.
+The automated suite contains 41 tests and is also executed by GitHub Actions.
