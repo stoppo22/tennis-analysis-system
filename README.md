@@ -29,6 +29,21 @@ See the [benchmark documentation](benchmark/README.md) for the annotation
 protocol, source information, complete metrics, error analysis, and known
 limitations.
 
+## Version history
+
+| Version | Commit | Main result |
+| --- | --- | --- |
+| `initial-baseline` | `a3bb1a0` | Tutorial-based pipeline before the evaluation and engineering work. |
+| `v0.2` | `cecc0e9` | Reusable pipeline, source-video FPS, CLI, validation, safer caches, pinned dependencies, and removal of generated artifacts from the tracked tree. |
+| `v0.3` | `dfd62f0` | Player-statistics logic extracted, corrected, clarified, and covered by automated tests. |
+| `v0.5` | `ed1f8bc` | Video-separated benchmark, one-to-one event evaluation, development-set error analysis, and measured shot-detection improvement. |
+| `v0.6` | `e65b6bf` | Shot-detection thresholds normalized by video FPS while preserving the v0.5 results at 25 FPS. |
+| Post-v0.6 | `74f7430` onward | Repository history cleaned, training notebooks sanitized, and local asset setup documented in preparation for v1.0. |
+
+There is intentionally no `v0.4` tag. The benchmark implementation and the
+measured v0.5 improvement were committed together, so the repository does not
+contain a separate, honest v0.4 snapshot to tag retroactively.
+
 ## Project origin
 
 The initial pipeline was built by following a YouTube tutorial. The current
