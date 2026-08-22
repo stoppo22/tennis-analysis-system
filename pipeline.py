@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 DETECTION_CACHE_VERSION = "1"
+SHOT_PERSISTENCE_FRAMES = 18
 
 
 def _calculate_file_sha256(file_path):
@@ -127,7 +128,11 @@ def analyze_video(input_video_path, output_video_path):
     mini_court = MiniCourt(video_frames[0])
 
     #Detect ball shots 
-    ball_shot_frames = ball_tracker.get_ball_shot_frames(ball_detections)
+    ball_shot_frames = ball_tracker.get_ball_shot_frames(
+        ball_detections,
+        fps,
+        minimum_change_frames_per_hit=SHOT_PERSISTENCE_FRAMES,
+    )
 
    #Convert positions to mini court positions
     player_mini_court_detections, ball_mini_court_detections = mini_court.convert_bounding_boxes_to_mini_court_coordinates(player_detections, ball_detections, court_keypoints)
