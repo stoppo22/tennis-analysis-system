@@ -4,6 +4,8 @@ import cv2
 import  pickle
 
 from utils.shot_detection_utils import (
+    DEFAULT_SHOT_PERSISTENCE_SECONDS,
+    DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,
     interpolate_ball_positions,
 )
@@ -20,12 +22,14 @@ class BallTracker:
         self,
         ball_positions,
         fps,
-        minimum_change_frames_per_hit=25,
+        persistence_seconds=DEFAULT_SHOT_PERSISTENCE_SECONDS,
+        smoothing_seconds=DEFAULT_SMOOTHING_SECONDS,
     ):
         return detect_shot_frames(
             ball_positions,
             fps,
-            minimum_change_frames_per_hit=minimum_change_frames_per_hit,
+            persistence_seconds=persistence_seconds,
+            smoothing_seconds=smoothing_seconds,
         )
 
 

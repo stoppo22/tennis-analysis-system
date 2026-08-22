@@ -6,6 +6,7 @@ import cv2
 
 from benchmark.annotate_shots import save_annotations
 from utils.shot_detection_utils import (
+    DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,
     interpolate_ball_positions,
 )
@@ -67,7 +68,8 @@ def run_baseline(
     video_path,
     model_path,
     output_path,
-    persistence_frames=25,
+    persistence_seconds=1.0,
+    smoothing_seconds=DEFAULT_SMOOTHING_SECONDS,
 ):
     from pipeline import _build_detection_cache_path
     from trackers import BallTracker
@@ -105,7 +107,8 @@ def run_baseline(
     shot_frames = detect_shot_frames(
         interpolated_positions,
         fps,
-        minimum_change_frames_per_hit=persistence_frames,
+        persistence_seconds=persistence_seconds,
+        smoothing_seconds=smoothing_seconds,
     )
     save_annotations(output_path, shot_frames, fps)
 
@@ -114,7 +117,7 @@ def run_baseline(
     return shot_frames
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description="Run the existing ball-shot baseline and export event times."
     )
@@ -126,12 +129,18 @@ def parse_args():
     )
     parser.add_argument("--output", required=True, help="Prediction CSV path.")
     parser.add_argument(
-        "--persistence-frames",
-        type=int,
-        default=25,
-        help="Required persistent direction-change frames (default: 25).",
+        "--persistence-seconds",
+        type=float,
+        default=1.0,
+        help="Required persistent direction-change duration (default: 1.0 s).",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--smoothing-seconds",
+        type=float,
+        default=DEFAULT_SMOOTHING_SECONDS,
+        help="Rolling-mean duration (default: 0.20 s).",
+    )
+    return parser.parse_args(argv)
 
 
 def main():
@@ -140,7 +149,8 @@ def main():
         args.video,
         args.model,
         args.output,
-        persistence_frames=args.persistence_frames,
+        persistence_seconds=args.persistence_seconds,
+        smoothing_seconds=args.smoothing_seconds,
     )
 
 

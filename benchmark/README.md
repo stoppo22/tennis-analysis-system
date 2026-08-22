@@ -133,3 +133,37 @@ The selected candidate improves every reported test metric on this clip. This
 supports the development-set decision, but the benchmark is deliberately small
 and does not establish performance across tournaments, camera angles, or video
 qualities.
+
+## v0.6 frame-rate normalization
+
+The frozen v0.5 benchmark used 25 FPS video and selected an 18-frame
+persistence threshold with a five-frame rolling mean. In v0.6 these values are
+represented by their equivalent durations: 0.72 seconds of persistence and
+0.20 seconds of smoothing.
+
+For each video, the detector converts both durations using the source FPS. The
+smoothing window is kept odd to prevent a symmetric direction change from
+passing through an exact zero between positive and negative deltas. The
+historical 25-frame baseline is represented as 1.0 second at 25 FPS.
+
+The conversion reproduces all four frozen development and test prediction
+files byte for byte at 25 FPS. The reported v0.5 metrics and CSV files are
+unchanged. Tests with equivalent synthetic trajectories at 25, 30, and 60 FPS
+verify consistent event times, but this is not presented as a new benchmark
+result.
+
+Example persistence options for the local benchmark runner:
+
+```bash
+# Historical baseline at 25 FPS
+python -m benchmark.run_baseline \
+  --video path/to/clip.mp4 \
+  --output predictions.csv \
+  --persistence-seconds 1.0
+
+# Development-selected v0.5 configuration, normalized for source FPS
+python -m benchmark.run_baseline \
+  --video path/to/clip.mp4 \
+  --output predictions.csv \
+  --persistence-seconds 0.72
+```

@@ -14,10 +14,13 @@ import cv2
 from copy import deepcopy
 import hashlib
 from pathlib import Path
+from utils.shot_detection_utils import (
+    DEFAULT_SHOT_PERSISTENCE_SECONDS,
+    DEFAULT_SMOOTHING_SECONDS,
+)
 
 
 DETECTION_CACHE_VERSION = "1"
-SHOT_PERSISTENCE_FRAMES = 18
 
 
 def _calculate_file_sha256(file_path):
@@ -131,7 +134,8 @@ def analyze_video(input_video_path, output_video_path):
     ball_shot_frames = ball_tracker.get_ball_shot_frames(
         ball_detections,
         fps,
-        minimum_change_frames_per_hit=SHOT_PERSISTENCE_FRAMES,
+        persistence_seconds=DEFAULT_SHOT_PERSISTENCE_SECONDS,
+        smoothing_seconds=DEFAULT_SMOOTHING_SECONDS,
     )
 
    #Convert positions to mini court positions

@@ -1,7 +1,10 @@
+import math
 import unittest
 
 from utils.shot_detection_utils import (
     detect_shot_frames,
+    duration_to_frames,
+    duration_to_odd_frames,
     interpolate_ball_positions,
 )
 
@@ -45,45 +48,75 @@ class ShotDetectionUtilsTest(unittest.TestCase):
         self.assertEqual(shot_frames, [])
 
     def test_invalid_fps_is_rejected(self):
-        with self.assertRaises(ValueError):
-            detect_shot_frames(ball_positions_from_y_values(range(70)), fps=0)
+        for fps in (0, -1, math.inf, math.nan):
+            with self.subTest(fps=fps), self.assertRaises(ValueError):
+                detect_shot_frames(ball_positions_from_y_values(range(70)), fps=fps)
 
-    def test_invalid_persistence_threshold_is_rejected(self):
-        with self.assertRaises(ValueError):
-            detect_shot_frames(
-                ball_positions_from_y_values(range(70)),
-                fps=25,
-                minimum_change_frames_per_hit=0,
-            )
+    def test_invalid_durations_are_rejected(self):
+        for duration in (0, -1, math.inf, math.nan):
+            with self.subTest(duration=duration), self.assertRaises(ValueError):
+                detect_shot_frames(
+                    ball_positions_from_y_values(range(70)),
+                    fps=25,
+                    persistence_seconds=duration,
+                )
 
-    def test_default_threshold_matches_explicit_baseline_value(self):
+    def test_duration_conversion_at_common_frame_rates(self):
+        self.assertEqual(duration_to_frames(0.72, 25), 18)
+        self.assertEqual(duration_to_frames(0.72, 30), 22)
+        self.assertEqual(duration_to_frames(0.72, 60), 43)
+
+    def test_smoothing_conversion_uses_odd_windows(self):
+        self.assertEqual(duration_to_odd_frames(0.20, 25), 5)
+        self.assertEqual(duration_to_odd_frames(0.20, 30), 7)
+        self.assertEqual(duration_to_odd_frames(0.20, 60), 13)
+
+    def test_one_second_matches_historical_25_frame_baseline(self):
         ball_positions = ball_positions_from_y_values(
             list(range(35)) + list(range(35, 0, -1))
         )
 
-        default_result = detect_shot_frames(ball_positions, fps=25)
-        explicit_result = detect_shot_frames(
+        result = detect_shot_frames(
             ball_positions,
             fps=25,
-            minimum_change_frames_per_hit=25,
+            persistence_seconds=1.0,
         )
 
-        self.assertEqual(default_result, explicit_result)
+        self.assertEqual(len(result), 1)
 
     def test_selected_threshold_accepts_a_shorter_persistent_change(self):
         ball_positions = ball_positions_from_y_values(
             list(range(20)) + list(range(20, -4, -1))
         )
 
-        baseline_result = detect_shot_frames(ball_positions, fps=25)
+        baseline_result = detect_shot_frames(
+            ball_positions,
+            fps=25,
+            persistence_seconds=1.0,
+        )
         selected_result = detect_shot_frames(
             ball_positions,
             fps=25,
-            minimum_change_frames_per_hit=18,
+            persistence_seconds=0.72,
         )
 
         self.assertEqual(baseline_result, [])
         self.assertEqual(len(selected_result), 1)
+
+    def test_equivalent_trajectories_have_consistent_event_times(self):
+        event_times = []
+
+        for fps in (25, 30, 60):
+            y_values = [min(frame, 2 * fps - frame) for frame in range(4 * fps)]
+            shot_frames = detect_shot_frames(
+                ball_positions_from_y_values(y_values),
+                fps=fps,
+            )
+
+            self.assertEqual(len(shot_frames), 1)
+            event_times.append(shot_frames[0] / fps)
+
+        self.assertLessEqual(max(event_times) - min(event_times), 1 / 25)
 
 
 if __name__ == "__main__":

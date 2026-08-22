@@ -1,4 +1,27 @@
+import math
+
 import pandas as pd
+
+
+DEFAULT_SHOT_PERSISTENCE_SECONDS = 0.72
+DEFAULT_SMOOTHING_SECONDS = 0.20
+FOLLOWING_WINDOW_RATIO = 1.2
+
+
+def duration_to_frames(duration_seconds, fps):
+    if not math.isfinite(fps) or fps <= 0:
+        raise ValueError("FPS must be a finite number greater than zero.")
+    if not math.isfinite(duration_seconds) or duration_seconds <= 0:
+        raise ValueError("Duration must be a finite number greater than zero.")
+
+    return max(1, math.floor(duration_seconds * fps + 0.5))
+
+
+def duration_to_odd_frames(duration_seconds, fps):
+    frame_count = duration_to_frames(duration_seconds, fps)
+    if frame_count % 2 == 0:
+        frame_count += 1
+    return frame_count
 
 
 def interpolate_ball_positions(ball_positions):
@@ -21,15 +44,11 @@ def interpolate_ball_positions(ball_positions):
 def detect_shot_frames(
     ball_positions,
     fps,
-    minimum_change_frames_per_hit=25,
+    persistence_seconds=DEFAULT_SHOT_PERSISTENCE_SECONDS,
+    smoothing_seconds=DEFAULT_SMOOTHING_SECONDS,
 ):
-    if fps <= 0:
-        raise ValueError("FPS must be greater than zero.")
-    if (
-        not isinstance(minimum_change_frames_per_hit, int)
-        or minimum_change_frames_per_hit <= 0
-    ):
-        raise ValueError("Minimum change frames per hit must be a positive integer.")
+    persistence_frames = duration_to_frames(persistence_seconds, fps)
+    smoothing_frames = duration_to_odd_frames(smoothing_seconds, fps)
 
     ball_boxes = [position.get(1, []) for position in ball_positions]
     positions = pd.DataFrame(ball_boxes, columns=["x1", "y1", "x2", "y2"])
@@ -37,13 +56,13 @@ def detect_shot_frames(
     positions["ball_hit"] = 0
     positions["mid_y"] = (positions["y1"] + positions["y2"]) / 2
     positions["mid_y_rolling_mean"] = positions["mid_y"].rolling(
-        window=5,
+        window=smoothing_frames,
         min_periods=1,
         center=False,
     ).mean()
     positions["delta_y"] = positions["mid_y_rolling_mean"].diff().fillna(0)
 
-    following_window = int(minimum_change_frames_per_hit * 1.2)
+    following_window = int(persistence_frames * FOLLOWING_WINDOW_RATIO)
 
     for frame_index in range(1, len(positions) - following_window):
         changes_from_positive_to_negative = (
@@ -78,7 +97,7 @@ def detect_shot_frames(
             if keeps_negative_direction or keeps_positive_direction:
                 change_count += 1
 
-        if change_count > minimum_change_frames_per_hit - 1:
+        if change_count > persistence_frames - 1:
             positions.at[frame_index, "ball_hit"] = 1
 
     return positions[positions["ball_hit"] == 1].index.tolist()
