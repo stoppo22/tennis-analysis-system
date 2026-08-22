@@ -39,7 +39,7 @@ limitations.
 | `v0.3` | `dfd62f0` | Player-statistics logic extracted, corrected, clarified, and covered by automated tests. |
 | `v0.5` | `ed1f8bc` | Video-separated benchmark, one-to-one event evaluation, development-set error analysis, and measured shot-detection improvement. |
 | `v0.6` | `e65b6bf` | Shot-detection thresholds normalized by video FPS while preserving the v0.5 results at 25 FPS. |
-| Post-v0.6 | `74f7430` onward | Repository history cleaned, training notebooks sanitized, and local asset setup documented in preparation for v1.0. |
+| Post-v0.6 | `74f7430` onward | Repository history cleaned, structured CSV export added, and the training notebooks and local asset setup prepared for v1.0. |
 
 There is intentionally no `v0.4` tag. The benchmark implementation and the
 measured v0.5 improvement were committed together, so the repository does not
@@ -118,6 +118,24 @@ Jupyter; never paste it into the notebook, commit it, or use the publishable
 InferenceJS key in its place. Training is separate from normal runtime setup
 and can require substantially more time and compute than running the pipeline.
 
+The cleaned notebook has been syntax-checked and its dataset validation logic
+has been reviewed, but the complete dataset download and 100-epoch training run
+have not yet been repeated from a fresh environment.
+
+### Recreating the court-keypoint checkpoint
+
+The tutorial author also provides the court-keypoint training dataset used by
+`training/tennis_key_point_detector_training.ipynb`. The notebook downloads it
+into the ignored `training/local_data/` directory, validates the annotations,
+trains a ResNet-50 regressor, and saves the resulting checkpoint at
+`models/keypoints_model.pth`.
+
+The dataset's redistribution licence has not been verified, so neither the
+archive nor its extracted files are committed. The cleaned notebook has been
+syntax-checked, and its dataset loader, model output shape, and one-epoch
+training/validation flow have been smoke-tested with synthetic data. The full
+dataset download and 20-epoch training run have not yet been repeated.
+
 Input videos must be supplied by the user and placed under `input_videos/` or
 passed with `--input`. Use footage you own or have permission to use. Generated
 videos go under `output_videos/`; detection caches are created under
@@ -168,11 +186,16 @@ two output paths, FPS, frame count, duration, and detected shot frames.
   explicit reusable licence has not been verified.
 - The player and ball speed estimates exported to CSV have not been evaluated
   against ground-truth speeds.
+- The cleaned training notebooks have passed syntax and synthetic smoke checks,
+  but their complete training runs have not yet been reproduced from scratch.
+- The redistribution licence for the tutorial author's court-keypoint dataset
+  has not been verified.
 - Model weights, input videos, generated outputs, and detection caches are not
   stored in Git.
 
 ## Next milestone
 
-Before v1.0, the repository history must be cleaned of old binary artifacts.
-The final milestone will also add a short demo, final verification, version
-history, and a CV-ready project description.
+The repository history cleanup and version history are complete. Before v1.0,
+the remaining work is to document and distribute the project-specific ball
+checkpoint outside Git, add automated CI, prepare a short visual demo, verify
+the setup from a clean clone, and finish the CV-ready project description.

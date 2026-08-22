@@ -240,6 +240,7 @@ runs/
 training/**/train/
 training/**/valid/
 training/**/test/
+training/local_data/
 
 # Local Codex workspace notes
 .codex/
