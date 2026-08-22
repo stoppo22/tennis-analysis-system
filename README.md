@@ -38,6 +38,86 @@ annotations, development-set error analysis, and a quantitatively tested shot
 detection improvement. The shot-event thresholds have also been normalized for
 different video frame rates.
 
+The tutorial baseline and its original pretrained court model are available in
+[Abdullah Tarek's tennis analysis repository](https://github.com/abdullahtarek/tennis_analysis).
+
+## Local setup
+
+Python 3.11 is the tested version for this project. From the repository root:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+mkdir -p models input_videos output_videos
+```
+
+The analysis must currently be launched from the repository root because the
+model paths are fixed relative to that directory.
+
+## Required local assets
+
+Large model weights and videos are intentionally excluded from Git. Place these
+three files at the exact paths below before running the pipeline:
+
+| Local path | Purpose | Source and status |
+| --- | --- | --- |
+| `yolo11l.pt` | Player detection | Official [Ultralytics YOLO11](https://docs.ultralytics.com/models/yolo11/) pretrained checkpoint. Ultralytics documents AGPL-3.0 and Enterprise licensing options. |
+| `models/yolov11best.pt` | Tennis-ball detection | Project-specific fine-tuned checkpoint. It is not currently redistributed; use the training instructions below to recreate it. |
+| `models/keypoints_model.pth` | Court keypoint prediction | Download the [pretrained court model linked by the tutorial author](https://drive.google.com/file/d/1QrTOF1ToQ4plsSZbkBs3zOLkVt3MBlta/view?usp=sharing) and rename it exactly. Its redistribution licence has not been verified, so the file is kept local. |
+
+Download the official player detector through the pinned Ultralytics package:
+
+```bash
+python -c 'from ultralytics import YOLO; YOLO("yolo11l.pt")'
+```
+
+Reference SHA-256 checksums for the exact local weights used during development
+and evaluation are:
+
+```text
+9ebd0e09d59811db4b1d61e2bc6730649608b1ac47f8dd01e2da6bca7c20023f  yolo11l.pt
+1f74aea3f7e84ccfbf61d0633d3f0d9713b20f2a7709771b8f9afa426a315d8c  models/yolov11best.pt
+fe166be4ebc9ca6fa1278cea252028fd242ef20bc593554c5fa2d98d82799962  models/keypoints_model.pth
+```
+
+On macOS, verify them with:
+
+```bash
+shasum -a 256 yolo11l.pt models/yolov11best.pt models/keypoints_model.pth
+```
+
+### Recreating the ball checkpoint
+
+The ball-training notebook uses version 6 of Viren Dhanwani's
+[Tennis Ball Detection dataset](https://universe.roboflow.com/viren-dhanwani/tennis-ball-detection/dataset/6),
+published under CC BY 4.0. Open
+`training/tennis_ball_detector_training.ipynb`, train the YOLO11 model, and copy
+the resulting `best.pt` checkpoint to `models/yolov11best.pt`.
+
+The notebook reads the Roboflow private API key from the
+`ROBOFLOW_API_KEY` environment variable. Set it in the environment that starts
+Jupyter; never paste it into the notebook, commit it, or use the publishable
+InferenceJS key in its place. Training is separate from normal runtime setup
+and can require substantially more time and compute than running the pipeline.
+
+Input videos must be supplied by the user and placed under `input_videos/` or
+passed with `--input`. Use footage you own or have permission to use. Generated
+videos go under `output_videos/`; detection caches are created under
+`tracker_stubs/`. All of these local artifacts remain ignored by Git.
+
+## Run the analysis
+
+```bash
+python main.py \
+  --input input_videos/input_video.mp4 \
+  --output output_videos/output_video.avi
+```
+
+The output is an annotated video containing detections, court keypoints, the
+mini court, and player statistics.
+
 ## Current limitations
 
 - The benchmark contains only two short clips and 54 annotated in-play shots.
@@ -53,5 +133,5 @@ different video frame rates.
 ## Next milestone
 
 Before v1.0, the repository history must be cleaned of old binary artifacts.
-The final milestone will also add complete setup and asset instructions, a
-short demo, final verification, and a CV-ready project description.
+The final milestone will also add a short demo, final verification, version
+history, and a CV-ready project description.
