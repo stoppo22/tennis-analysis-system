@@ -88,6 +88,24 @@ mkdir -p models input_videos output_videos
 The analysis must currently be launched from the repository root because the
 model paths are fixed relative to that directory.
 
+### Clean-clone verification
+
+On 23 August 2026, commit `7b310b6` was cloned into a new temporary directory
+and tested on an Intel Mac running macOS 12.7.6 with Python 3.11.9. A fresh
+virtual environment was created exclusively from the README instructions and
+`requirements.txt`.
+
+The dependency installation completed successfully, `pip check` reported no
+conflicts, the pinned OpenCV, PyTorch, Torchvision, and Ultralytics packages
+imported correctly, all 41 automated tests passed, and `python main.py --help`
+completed successfully. The CLI also reported the missing input and three
+required model files clearly when run without local assets.
+
+This verifies the clean setup, dependency set, tests, and command-line entry
+point. A complete clean-clone video analysis still depends on publishing the
+project-specific ball checkpoint as a v1.0 release asset and supplying the
+other documented local assets.
+
 ## Required local assets
 
 Large model weights and videos are intentionally excluded from Git. Place these
@@ -228,7 +246,8 @@ software licence.
 
 ## Next milestone
 
-The repository history cleanup, automated CI, version history, and visual demo
-are complete. Before v1.0, the remaining work is to document and distribute the
-project-specific ball checkpoint outside Git, verify the setup from a clean
-clone, and finish the CV-ready project description.
+The repository history cleanup, automated CI, version history, visual demo,
+ball-detector model card, and clean-clone setup verification are complete.
+Before v1.0, the remaining work is to publish the project-specific ball
+checkpoint outside Git, repeat the asset-download smoke test, and finish the
+CV-ready project description.
