@@ -30,6 +30,22 @@ See the [benchmark documentation](benchmark/README.md) for the annotation
 protocol, source information, complete metrics, error analysis, and known
 limitations.
 
+## Visual demo
+
+![Tennis Analysis System analysing Sinner vs Djokovic](docs/sinner-djokovic-wimbledon-2025-demo.gif)
+
+This silent six-second excerpt shows the system analysing Jannik Sinner vs
+Novak Djokovic in the 2025 Wimbledon semifinal. The source footage comes from
+the official Wimbledon YouTube channel:
+[watch the original video](https://www.youtube.com/watch?v=eoiKSfYg71o).
+
+The excerpt was shortened, resized, muted, and modified with player and ball
+detections, court keypoints, shot-event indicators, a mini court, and estimated
+player statistics to demonstrate the project's technical operation. The source
+footage is not presented as freely licensed and is not covered by this
+repository's software licence. The complete source video and local benchmark
+clip are not included in the repository.
+
 ## Version history
 
 | Version | Commit | Main result |
@@ -190,12 +206,13 @@ two output paths, FPS, frame count, duration, and detected shot frames.
   but their complete training runs have not yet been reproduced from scratch.
 - The redistribution licence for the tutorial author's court-keypoint dataset
   has not been verified.
-- Model weights, input videos, generated outputs, and detection caches are not
-  stored in Git.
+- Model weights, input videos, full generated videos, and detection caches are
+  not stored in Git. The short compressed GIF above is the only generated-video
+  excerpt included for demonstration.
 
 ## Next milestone
 
-The repository history cleanup and version history are complete. Before v1.0,
-the remaining work is to document and distribute the project-specific ball
-checkpoint outside Git, add automated CI, prepare a short visual demo, verify
-the setup from a clean clone, and finish the CV-ready project description.
+The repository history cleanup, automated CI, version history, and visual demo
+are complete. Before v1.0, the remaining work is to document and distribute the
+project-specific ball checkpoint outside Git, verify the setup from a clean
+clone, and finish the CV-ready project description.

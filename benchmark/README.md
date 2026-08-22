@@ -27,9 +27,13 @@ source videos. Video files are ignored by Git and are not redistributed.
 ## Rights and redistribution status
 
 The source, uploader, and URL are documented, but no explicit reusable licence
-has been verified for either video. The clips are therefore used locally for
-development and evaluation only and must not be committed or redistributed.
-Their suitability for a published benchmark must be resolved before release.
+has been verified for either video. The complete source videos and benchmark
+clips are therefore kept local and are not committed or redistributed.
+
+The main README includes one short, silent, modified GIF derived from the test
+source solely to demonstrate the system's overlays. It identifies the match,
+tournament, official channel, and original URL, does not claim a free licence,
+and is not part of the benchmark data.
 
 ## Evaluation status
 
