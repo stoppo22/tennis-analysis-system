@@ -5,6 +5,7 @@ from pathlib import Path
 
 from benchmark.run_benchmark import (
     build_report,
+    count_pending_clips,
     find_predictions_path,
     load_clips,
     parse_args,
@@ -85,6 +86,22 @@ class RunBenchmarkTest(unittest.TestCase):
     def test_missing_predictions_are_reported(self):
         with self.assertRaises(FileNotFoundError):
             find_predictions_path(self.root / "predictions", "dev_x_rally_01", "ghost")
+
+    def test_clips_without_annotations_are_skipped_and_counted(self):
+        path = self.root / "pending_sources.csv"
+        with path.open("w", newline="", encoding="utf-8") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=["clip", "split", "events"])
+            writer.writeheader()
+            writer.writerows(
+                [
+                    {"clip": "dev_x_rally_01", "split": "development", "events": "3"},
+                    {"clip": "new_clip", "split": "test", "events": ""},
+                ]
+            )
+
+        self.assertEqual(load_clips(path), [("dev_x_rally_01", "development")])
+        self.assertEqual(count_pending_clips(path), 1)
+        self.assertEqual(count_pending_clips(path, splits=["development"]), 0)
 
     def test_zero_block_length_means_whole_clip(self):
         self.assertIsNone(self.args("--block-seconds", "0").block_seconds)
