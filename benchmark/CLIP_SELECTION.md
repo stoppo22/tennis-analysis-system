@@ -156,13 +156,12 @@ steadiness, computes the SHA-256, and prints a `sources.csv` row. It does **not*
 replace a visual check of the court, the players, singles play, and the absence
 of replays or slow motion.
 
-**Calibration (do this first).** The thresholds were validated only on synthetic
-video and on a six-second demo excerpt, where the measured camera drift was 17.8
-px against a limit of about 22 px. Run the checker on the two existing benchmark
-clips, which are known to be suitable. Both must pass; if the drift check fails
-on them, raise `MAX_CAMERA_DRIFT_FRACTION` in `benchmark/check_clip.py` and note
-the calibration clips in the commit message. Do not loosen it afterwards to admit
-a clip that fails.
+**Camera check is advisory.** The camera-drift threshold was validated only on
+synthetic video and on a six-second demo excerpt (17.8 px against a limit of about
+22 px), so a warning does not reject a clip; look at it by eye. After the first
+five or six accepted clips, compare the measured drift of clips that look steady
+with those that visibly pan or zoom, and set `MAX_CAMERA_DRIFT_FRACTION` (and
+remove the advisory flag) from that evidence.
 
 ### Annotation
 

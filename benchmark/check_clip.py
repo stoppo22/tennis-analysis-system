@@ -28,6 +28,10 @@ MIN_TILE_RESPONSE = 0.05
 MIN_RELIABLE_TILES = 4
 MAX_CAMERA_DRIFT_FRACTION = 0.03  # of frame width, relative to the first frame
 
+# Reported but not blocking: the drift threshold has not been calibrated on real
+# footage yet, so it must not reject a clip on its own.
+ADVISORY_REQUIREMENTS = {"steady camera"}
+
 MIN_DURATION_SECONDS = 20.0
 MAX_DURATION_SECONDS = 60.0
 MIN_WIDTH = 1280
@@ -192,7 +196,11 @@ def check_clip(video_path):
             {"requirement": name, "passed": passed, "detail": detail}
             for name, passed, detail in requirements
         ],
-        "passed": all(passed for _, passed, _ in requirements),
+        "passed": all(
+            passed
+            for name, passed, _ in requirements
+            if name not in ADVISORY_REQUIREMENTS
+        ),
     }
 
 
@@ -224,8 +232,10 @@ def print_report(report):
         f"{report['frame_count']} frames, {report['duration_seconds']:.1f} s"
     )
     for item in report["requirements"]:
-        mark = "ok  " if item["passed"] else "FAIL"
-        print(f"  [{mark}] {item['requirement']}: {item['detail']}")
+        advisory = item["requirement"] in ADVISORY_REQUIREMENTS
+        mark = "ok  " if item["passed"] else ("warn" if advisory else "FAIL")
+        suffix = " (advisory)" if advisory else ""
+        print(f"  [{mark}] {item['requirement']}{suffix}: {item['detail']}")
     print(f"  sha256: {report['sha256']}")
     print("  Still to confirm by eye: full court visible, both players on court,")
     print("  singles, no replay or slow motion.")
