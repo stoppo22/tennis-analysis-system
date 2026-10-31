@@ -22,7 +22,10 @@ including:
 - source-FPS handling and frame-rate-normalized shot detection;
 - structured per-frame CSV statistics;
 - a manually annotated, video-separated shot-event benchmark;
-- one-to-one temporal event evaluation;
+- one-to-one temporal event evaluation with block-bootstrap confidence
+  intervals and a multi-clip runner;
+- an alternating-swing shot detector evaluated with a pre-registered
+  leave-one-clip-out protocol;
 - development-set error analysis and a measured F1 improvement;
 - automated tests and GitHub Actions;
 - player-role synchronization and corrected statistics;

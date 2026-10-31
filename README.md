@@ -53,6 +53,28 @@ Full protocol, metrics, and error analysis: [benchmark/README.md](benchmark/READ
 and [benchmark/development_error_analysis.md](benchmark/development_error_analysis.md).
 The ball detector is documented in its [model card](docs/ball-detector-model-card.md).
 
+### Alternating-swing detector (v1.2, development evidence)
+
+A second shot detector (`utils/swing_shot_detection.py`) treats the ball's
+vertical position as a wave between the two players and accepts only large,
+alternating reversals. It was compared with the original rule under a
+pre-registered leave-one-clip-out protocol, with both methods tuned the same
+way (54 events, 95% block-bootstrap intervals):
+
+| Held-out result, `swing` minus `persistence` | Difference |
+| --- | ---: |
+| Precision | **+0.069 [+0.007, +0.142]** |
+| Recall | +0.019 [−0.070, +0.122] |
+| F1 | +0.046 [−0.020, +0.120] (not established) |
+
+It gives higher precision at equal recall and is far less sensitive to its
+parameters (69% of the grid is near-optimal on both clips, against 43% for the
+old rule), but its timing error roughly doubles (about 0.10 s versus 0.05 s)
+and the F1 gain is not statistically distinguishable from zero with two clips.
+Both clips are now development data, so this is not a generalization claim; the
+confirming evaluation is a fresh test split. Details, deviations from the
+protocol, and error analysis: [benchmark/EXPERIMENT_swing_detector.md](benchmark/EXPERIMENT_swing_detector.md).
+
 ## Quick start
 
 Python 3.11 is the tested version. From the repository root:
@@ -127,9 +149,9 @@ split between tutorial and project-specific work is also stated in
 - The benchmark contains only two short 25 FPS clips and 54 annotated in-play
   shots; results do not establish performance across tournaments, camera
   angles, or video qualities.
-- Shot detection relies on the vertical direction change of the ball in image
-  space, and the ball model detects the ball in under half of the frames
-  (46% on the development clip), so gaps are interpolated.
+- Both shot detectors rely on the vertical motion of the ball in image space,
+  and the ball model detects the ball in under half of the frames (46% on the
+  development clip), so gaps are interpolated.
 - Court keypoints are estimated once, on the first frame, so the camera is
   assumed static. Broadcast cuts and zooms are not handled.
 - Player and ball speed estimates are derived from mini-court coordinates and
@@ -146,8 +168,8 @@ split between tutorial and project-specific work is also stated in
 
 1. Expand the benchmark to more videos, camera setups, and frame rates, with
    confidence intervals and ablations, using fresh held-out splits.
-2. Improve shot detection beyond a single vertical-direction rule (both axes,
-   player proximity) and evaluate it against the current baseline.
+2. Confirm the alternating-swing detector once on a fresh test split, recover
+   its timing accuracy, and add player proximity to reject shifted events.
 3. Evaluate and improve ball detection and tracking.
 4. Reconstruct trajectories in metres via the court homography and validate
    speeds against broadcast serve-speed readouts.

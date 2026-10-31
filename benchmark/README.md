@@ -171,3 +171,75 @@ python -m benchmark.run_baseline \
   --output predictions.csv \
   --persistence-seconds 0.72
 ```
+
+## Multi-clip evaluation with confidence intervals
+
+`benchmark/sources.csv` lists every clip and its split. The runner evaluates
+one or more methods on all clips and reports block-bootstrap confidence
+intervals. With two or more methods, the second is compared to the first with a
+paired bootstrap on the same resampled blocks.
+
+```bash
+python -m benchmark.run_benchmark --methods baseline persistence_18
+python -m benchmark.run_benchmark --methods baseline persistence_18 --splits test
+```
+
+Predictions are read from `benchmark/predictions/<clip>_<method>.csv`; for the
+historical files the `_rally_NN` part of the clip name may be omitted.
+
+Events within a rally are correlated, so each clip is split into 10-second
+blocks (`--block-seconds`) and whole blocks are resampled with replacement. A
+true positive or false negative belongs to the block of its ground-truth time, a
+false positive to the block of its prediction time. `--block-seconds 0`
+resamples whole clips, which is only meaningful with many clips: with two clips
+it produces misleadingly narrow intervals.
+
+Current two-clip result (both clips now classified as development data, so the
+interval is optimistic for the tuned method):
+
+| Method | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| baseline | 0.735 [0.540, 0.886] | 0.667 [0.544, 0.772] | 0.699 [0.545, 0.822] |
+| persistence_18 | 0.750 [0.596, 0.883] | 0.833 [0.705, 0.939] | 0.790 [0.649, 0.906] |
+
+Paired difference (persistence_18 − baseline): recall +0.167 [+0.122, +0.241],
+F1 +0.090 [+0.027, +0.149], precision +0.015 [−0.082, +0.091]. The recall gain is
+consistent across blocks; precision is unchanged. The fresh test split will
+provide the unbiased confirmation.
+
+## Ball detections as data
+
+Experiments on the shot-detection rule only need the model's raw per-frame ball
+boxes, not the videos. `benchmark/detections/<clip>.csv` stores them
+(`frame,x1,y1,x2,y2`, empty when the ball was not detected) and contains only
+box coordinates. Export them once, on the machine that holds the local detection
+caches:
+
+```bash
+ls -lt tracker_stubs/ball_detections_*.pkl
+python -m benchmark.detections export \
+  --cache tracker_stubs/ball_detections_<hash>.pkl \
+  --output benchmark/detections/<clip>.csv
+```
+
+The command prints the frame count and detection rate, which identifies the clip
+(the development clip has 1,300 frames, the Wimbledon clip 575).
+
+## Alternating-swing detector
+
+`utils/swing_shot_detection.py` detects shots as large, alternating reversals of
+the ball's vertical position. The comparison with the persistence rule follows a
+protocol committed before the results (`EXPERIMENT_swing_detector.md`):
+leave-one-clip-out selection, 95% block-bootstrap intervals, and a paired
+difference. Summary of the held-out result: precision +0.069 [+0.007, +0.142],
+recall +0.019 [−0.070, +0.122], F1 +0.046 [−0.020, +0.120], timing error about
+0.10 s versus 0.05 s. The F1 gain is not established, and both clips are
+development data. Full results, a documented deviation from the protocol, the
+frozen configuration `swing_v1`, and an error analysis are in
+`EXPERIMENT_swing_detector.md`; the saved outputs are in `results/`.
+
+```bash
+python -m benchmark.loco_experiment                 # pre-registered grid
+python -m benchmark.loco_experiment --extended-grid # exploratory, wider grid
+python -m benchmark.run_benchmark --methods persistence_18 swing_v1
+```
