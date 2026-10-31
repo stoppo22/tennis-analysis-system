@@ -3,7 +3,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 import cv2
 
-from utils.visualization_utils import KEYPOINT_COLOR
+from tennis_analysis.utils.visualization_utils import KEYPOINT_COLOR
 
 class CourtLineDetector:
     def __init__(self,model_path):

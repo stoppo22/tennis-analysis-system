@@ -3,9 +3,9 @@ from ultralytics import YOLO
 import cv2
 import  pickle
 
-from utils.visualization_utils import BALL_COLOR, draw_corner_box
+from tennis_analysis.utils.visualization_utils import BALL_COLOR, draw_corner_box
 
-from utils.shot_detection_utils import (
+from tennis_analysis.utils.shot_detection_utils import (
     DEFAULT_SHOT_PERSISTENCE_SECONDS,
     DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-import constants
+from tennis_analysis import constants
 from .bbox_utils import measure_distance
 from .conversions import convert_pixel_distance_to_meters
 

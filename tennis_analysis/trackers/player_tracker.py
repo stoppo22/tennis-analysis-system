@@ -1,11 +1,8 @@
 
 from ultralytics import YOLO
-import cv2
 import  pickle
-import sys
-sys.path.append("../")
-from utils import getCenter, measure_distance
-from utils.visualization_utils import (
+from tennis_analysis.utils import getCenter, measure_distance
+from tennis_analysis.utils.visualization_utils import (
     draw_corner_box,
     draw_label,
     get_player_color,

@@ -9,11 +9,11 @@ import unittest
 from pathlib import Path
 
 from benchmark.detections import load_detections_csv
-from utils.shot_detection_utils import (
+from tennis_analysis.utils.shot_detection_utils import (
     detect_shot_frames,
     interpolate_ball_positions,
 )
-from utils.swing_shot_detection import detect_swing_shot_frames
+from tennis_analysis.utils.swing_shot_detection import detect_swing_shot_frames
 
 BENCHMARK = Path(__file__).resolve().parent.parent / "benchmark"
 FPS = 25.0
