@@ -13,7 +13,6 @@ from benchmark.check_clip import (
     find_cuts,
     measure_camera_drift,
     sources_row,
-    to_analysis_frame,
 )
 
 WIDTH, HEIGHT = ANALYSIS_SIZE
