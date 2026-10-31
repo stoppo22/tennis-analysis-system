@@ -84,11 +84,14 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+python -m pip install -e .
 mkdir -p models input_videos output_videos
 ```
 
-The analysis must currently be launched from the repository root because the
-model paths are fixed relative to that directory.
+The editable install provides the `tennis-analysis` command and the
+`tennis_analysis` package. Model locations default to the paths below, relative
+to the working directory, and can be overridden with `--player-model`,
+`--ball-model`, `--court-model` and `--cache-dir`.
 
 ### Required model files
 
@@ -108,10 +111,13 @@ Download links, SHA-256 checksums, and instructions for retraining are in
 Supply a video you own or have permission to use:
 
 ```bash
-python main.py \
+tennis-analysis \
   --input input_videos/input_video.mp4 \
   --output output_videos/output_video.avi
 ```
+
+`python -m tennis_analysis` is equivalent. Use `--shot-detector swing` to select
+the alternating-swing detector (default: `persistence`, the original rule).
 
 This creates the annotated video and, next to it,
 `output_video_statistics.csv`. Use `--statistics-output` to choose another CSV
@@ -123,13 +129,25 @@ average means no speed sample was available yet. From Python, `analyze_video()`
 returns a dictionary with the output paths, FPS, frame count, duration, and
 detected shot frames.
 
-### Run the tests
+### Run the tests and the linter
 
 ```bash
+python -m pip install -e ".[dev]"
+ruff check .
 python -m unittest discover -s tests -v
 ```
 
-The same command runs in GitHub Actions on every push and pull request.
+The same checks run in GitHub Actions on every push and pull request.
+
+### Repository layout
+
+| Path | Content |
+| --- | --- |
+| `tennis_analysis/` | Installable package: pipeline, CLI, trackers, court detector, mini court, utilities |
+| `benchmark/` | Evaluation tooling, annotations, stored ball detections, predictions and experiment results |
+| `tests/` | Automated tests |
+| `training/` | Notebooks that recreate the ball and court-keypoint models |
+| `docs/` | Model card, assets, project history |
 
 ## Project origin and attribution
 

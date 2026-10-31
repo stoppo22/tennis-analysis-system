@@ -5,7 +5,7 @@ from pathlib import Path
 import cv2
 
 from benchmark.annotate_shots import save_annotations
-from utils.shot_detection_utils import (
+from tennis_analysis.utils.shot_detection_utils import (
     DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,
     interpolate_ball_positions,
@@ -71,8 +71,8 @@ def run_baseline(
     persistence_seconds=1.0,
     smoothing_seconds=DEFAULT_SMOOTHING_SECONDS,
 ):
-    from pipeline import _build_detection_cache_path
-    from trackers import BallTracker
+    from tennis_analysis.pipeline import _build_detection_cache_path
+    from tennis_analysis.trackers import BallTracker
 
     video_path = Path(video_path)
     model_path = Path(model_path)

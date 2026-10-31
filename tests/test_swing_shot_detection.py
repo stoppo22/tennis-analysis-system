@@ -1,9 +1,8 @@
-import math
 import unittest
 
 import numpy as np
 
-from utils.swing_shot_detection import (
+from tennis_analysis.utils.swing_shot_detection import (
     detect_swing_shot_frames,
     zigzag_pivots,
 )

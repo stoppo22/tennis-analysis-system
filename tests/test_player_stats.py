@@ -5,8 +5,8 @@ import unittest
 
 import pandas as pd
 
-from utils.player_stats_drawer_utils import _format_speed
-from utils.player_stats_utils import (
+from tennis_analysis.utils.player_stats_drawer_utils import _format_speed
+from tennis_analysis.utils.player_stats_utils import (
     build_player_stats_dataframe,
     calculate_player_stats_data,
     resolve_statistics_output_path,

@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from utils.shot_detection_utils import (
+from tennis_analysis.utils.shot_detection_utils import (
     detect_shot_frames,
     duration_to_frames,
     duration_to_odd_frames,

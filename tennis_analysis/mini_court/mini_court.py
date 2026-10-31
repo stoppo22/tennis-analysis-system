@@ -1,10 +1,8 @@
 import cv2
 import numpy as np
-import sys
 
-sys.path.append("../")
-import constants
-from utils import (convert_meters_to_pixel_distance,
+from tennis_analysis import constants
+from tennis_analysis.utils import (convert_meters_to_pixel_distance,
                    convert_pixel_distance_to_meters,
                    get_foot_position,
                    get_closest_keypoints_index,
@@ -12,7 +10,7 @@ from utils import (convert_meters_to_pixel_distance,
                    measure_xy_distance,
                    get_center_of_bbox,
                    measure_distance)
-from utils.visualization_utils import (
+from tennis_analysis.utils.visualization_utils import (
     KEYPOINT_COLOR,
     draw_translucent_panel,
     get_player_color,
