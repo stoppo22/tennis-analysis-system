@@ -171,3 +171,38 @@ python -m benchmark.run_baseline \
   --output predictions.csv \
   --persistence-seconds 0.72
 ```
+
+## Multi-clip evaluation with confidence intervals
+
+`benchmark/sources.csv` lists every clip and its split. The runner evaluates
+one or more methods on all clips and reports block-bootstrap confidence
+intervals. With two or more methods, the second is compared to the first with a
+paired bootstrap on the same resampled blocks.
+
+```bash
+python -m benchmark.run_benchmark --methods baseline persistence_18
+python -m benchmark.run_benchmark --methods baseline persistence_18 --splits test
+```
+
+Predictions are read from `benchmark/predictions/<clip>_<method>.csv`; for the
+historical files the `_rally_NN` part of the clip name may be omitted.
+
+Events within a rally are correlated, so each clip is split into 10-second
+blocks (`--block-seconds`) and whole blocks are resampled with replacement. A
+true positive or false negative belongs to the block of its ground-truth time, a
+false positive to the block of its prediction time. `--block-seconds 0`
+resamples whole clips, which is only meaningful with many clips: with two clips
+it produces misleadingly narrow intervals.
+
+Current two-clip result (both clips now classified as development data, so the
+interval is optimistic for the tuned method):
+
+| Method | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| baseline | 0.735 [0.540, 0.886] | 0.667 [0.544, 0.772] | 0.699 [0.545, 0.822] |
+| persistence_18 | 0.750 [0.596, 0.883] | 0.833 [0.705, 0.939] | 0.790 [0.649, 0.906] |
+
+Paired difference (persistence_18 − baseline): recall +0.167 [+0.122, +0.241],
+F1 +0.090 [+0.027, +0.149], precision +0.015 [−0.082, +0.091]. The recall gain is
+consistent across blocks; precision is unchanged. The fresh test split will
+provide the unbiased confirmation.
