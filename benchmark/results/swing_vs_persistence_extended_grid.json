@@ -1,0 +1,433 @@
+{
+  "clips": [
+    "development_australian_open_2024_sinner_medvedev_rally_01",
+    "test_wimbledon_2025_sinner_djokovic_rally_01"
+  ],
+  "methods": {
+    "persistence": {
+      "loco_folds": {
+        "development_australian_open_2024_sinner_medvedev_rally_01": {
+          "selected": {
+            "persistence_seconds": 0.6
+          },
+          "training_f1": 0.7428571428571429,
+          "held_out_counts": {
+            "tp": 34,
+            "fp": 10,
+            "fn": 5
+          },
+          "held_out_f1": 0.8192771084337349
+        },
+        "test_wimbledon_2025_sinner_djokovic_rally_01": {
+          "selected": {
+            "persistence_seconds": 0.72
+          },
+          "training_f1": 0.8292682926829268,
+          "held_out_counts": {
+            "tp": 11,
+            "fp": 6,
+            "fn": 4
+          },
+          "held_out_f1": 0.6875
+        }
+      },
+      "loco_overall": {
+        "units": 9,
+        "precision": {
+          "value": 0.7377049180327869,
+          "ci_low": 0.5789473684210527,
+          "ci_high": 0.8727272727272727
+        },
+        "recall": {
+          "value": 0.8333333333333334,
+          "ci_low": 0.7017543859649122,
+          "ci_high": 0.9428571428571428
+        },
+        "f1": {
+          "value": 0.782608695652174,
+          "ci_low": 0.6391752577319587,
+          "ci_high": 0.8992248062015504
+        }
+      },
+      "oracle_best_per_clip": {
+        "development_australian_open_2024_sinner_medvedev_rally_01": {
+          "parameters": {
+            "persistence_seconds": 0.72
+          },
+          "f1": 0.8292682926829268
+        },
+        "test_wimbledon_2025_sinner_djokovic_rally_01": {
+          "parameters": {
+            "persistence_seconds": 0.6
+          },
+          "f1": 0.7428571428571429
+        }
+      },
+      "sensitivity": {
+        "near_best_on_every_clip": 3,
+        "grid_size": 7,
+        "fraction": 0.42857142857142855,
+        "configs": [
+          {
+            "persistence_seconds": 0.52
+          },
+          {
+            "persistence_seconds": 0.6
+          },
+          {
+            "persistence_seconds": 0.68
+          }
+        ]
+      }
+    },
+    "swing": {
+      "loco_folds": {
+        "development_australian_open_2024_sinner_medvedev_rally_01": {
+          "selected": {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.52
+          },
+          "training_f1": 0.7586206896551724,
+          "held_out_counts": {
+            "tp": 34,
+            "fp": 6,
+            "fn": 5
+          },
+          "held_out_f1": 0.8607594936708861
+        },
+        "test_wimbledon_2025_sinner_djokovic_rally_01": {
+          "selected": {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.28
+          },
+          "training_f1": 0.8641975308641975,
+          "held_out_counts": {
+            "tp": 11,
+            "fp": 3,
+            "fn": 4
+          },
+          "held_out_f1": 0.7586206896551724
+        }
+      },
+      "loco_overall": {
+        "units": 8,
+        "precision": {
+          "value": 0.8333333333333334,
+          "ci_low": 0.717948717948718,
+          "ci_high": 0.9298347613219092
+        },
+        "recall": {
+          "value": 0.8333333333333334,
+          "ci_low": 0.72,
+          "ci_high": 0.9333606557377045
+        },
+        "f1": {
+          "value": 0.8333333333333334,
+          "ci_low": 0.72,
+          "ci_high": 0.927839175257732
+        }
+      },
+      "oracle_best_per_clip": {
+        "development_australian_open_2024_sinner_medvedev_rally_01": {
+          "parameters": {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.28
+          },
+          "f1": 0.8641975308641975
+        },
+        "test_wimbledon_2025_sinner_djokovic_rally_01": {
+          "parameters": {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.52
+          },
+          "f1": 0.7586206896551724
+        }
+      },
+      "sensitivity": {
+        "near_best_on_every_clip": 63,
+        "grid_size": 91,
+        "fraction": 0.6923076923076923,
+        "configs": [
+          {
+            "min_swing_ratio": 0.06,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.06,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.06,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.06,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.08,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.08,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.08,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.08,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.1,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.1,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.1,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.1,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.12,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.12,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.12,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.12,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.15,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.15,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.15,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.15,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.18,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.18,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.18,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.18,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.22,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.22,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.22,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.22,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.26,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.26,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.26,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.26,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.3,
+            "smoothing_seconds": 0.2
+          },
+          {
+            "min_swing_ratio": 0.3,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.3,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.3,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.3,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.35,
+            "smoothing_seconds": 0.2
+          },
+          {
+            "min_swing_ratio": 0.35,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.35,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.35,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.35,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.08
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.12
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.2
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.4,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.08
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.12
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.2
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.45,
+            "smoothing_seconds": 0.52
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.08
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.12
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.2
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.28
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.36
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.44
+          },
+          {
+            "min_swing_ratio": 0.5,
+            "smoothing_seconds": 0.52
+          }
+        ]
+      }
+    }
+  },
+  "comparison_swing_minus_persistence": {
+    "units": 9,
+    "precision": {
+      "difference": 0.09562841530054644,
+      "ci_low": 0.028107248545104054,
+      "ci_high": 0.17948717948717952
+    },
+    "recall": {
+      "difference": 0.0,
+      "ci_low": -0.0714285714285714,
+      "ci_high": 0.07500000000000007
+    },
+    "f1": {
+      "difference": 0.050724637681159424,
+      "ci_low": -0.013086150490730697,
+      "ci_high": 0.128110599078341
+    },
+    "probability_b_better": 0.9353
+  },
+  "configurations_evaluated": 98,
+  "settings": {
+    "tolerance_seconds": 0.25,
+    "block_seconds": 10.0,
+    "resamples": 10000,
+    "seed": 0
+  }
+}
