@@ -98,3 +98,75 @@ Annotations go to `benchmark/annotations/<same name>.csv` and are created with
 - [ ] SHA-256 recorded
 - [ ] Annotated and CSV committed
 - [ ] (Test clips) not run through any detector until methods are frozen
+
+## Finding and preparing clips
+
+### Where to look
+
+Full-match uploads on the official tournament channels are the best source:
+long rallies are shown from the standard high camera without cuts. Extended
+highlights are poor sources because they are edited. Search each channel for
+`<tournament> <year> full match` and pick a point of at least six shots that is
+shown without a cut or replay. Availability varies by region and over time, and
+the video must be inspected before use; nothing in this repository links to a
+specific third-party upload.
+
+### Coverage plan
+
+Eight to ten clips, never two from the same match. Cover as many rows as
+possible.
+
+| Slot | Split | Surface | Draw | Notes |
+| --- | --- | --- | --- | --- |
+| 1 | test | Clay | Men | Roland Garros channel |
+| 2 | test | Hard | Women | US Open channel |
+| 3 | test | Grass | Women | Wimbledon channel, not the existing match |
+| 4 | test | Indoor hard | Men | ATP or tournament channel |
+| 5 | test | Hard, 50 or 60 FPS | Men | Check FPS with `check_clip` |
+| 6 | test | Clay | Women | Different tournament from slot 1 |
+| 7 | development | Hard | Women | Australian Open channel |
+| 8 | development | Clay or hard | Men | Include a left-handed player |
+| 9 | development | Any | Any | Different broadcaster or camera height |
+
+The table fixes the split of each slot **before** a clip is chosen. A clip that
+fails the checks is replaced by another one for the same slot, not moved to a
+different split.
+
+### Cutting a clip
+
+Download the video with a tool you are permitted to use, then cut the interval
+without changing the frame rate (no `-r` option) and without audio:
+
+```bash
+ffmpeg -ss 00:44 -to 01:07 -i source.mp4 -an \
+  -c:v libx264 -crf 18 -preset slow \
+  input_videos/benchmark/<split>_<tournament>_<year>_<playerA>_<playerB>_rally_01.mp4
+```
+
+Keep source downloads and clips under `input_videos/`, which Git ignores.
+
+### Automatic checks
+
+```bash
+python -m benchmark.check_clip input_videos/benchmark/<clip>.mp4
+```
+
+The checker verifies resolution, duration, absence of shot changes and camera
+steadiness, computes the SHA-256, and prints a `sources.csv` row. It does **not**
+replace a visual check of the court, the players, singles play, and the absence
+of replays or slow motion.
+
+**Calibration (do this first).** The thresholds were validated only on synthetic
+video and on a six-second demo excerpt, where the measured camera drift was 17.8
+px against a limit of about 22 px. Run the checker on the two existing benchmark
+clips, which are known to be suitable. Both must pass; if the drift check fails
+on them, raise `MAX_CAMERA_DRIFT_FRACTION` in `benchmark/check_clip.py` and note
+the calibration clips in the commit message. Do not loosen it afterwards to admit
+a clip that fails.
+
+### Annotation
+
+Annotate every accepted clip with `python -m benchmark.annotate_shots`. For the
+test split, annotate each clip a second time on a different day and keep both
+files, so that inter-annotation agreement can be measured. Only after all test
+annotations are frozen and committed may any detector be run on those clips.
