@@ -98,3 +98,17 @@ Annotations go to `benchmark/annotations/<same name>.csv` and are created with
 - [ ] SHA-256 recorded
 - [ ] Annotated and CSV committed
 - [ ] (Test clips) not run through any detector until methods are frozen
+
+### Inter-annotation agreement
+
+Store the second pass in a separate directory (for example
+`benchmark/annotations_second_pass/`, same file names) and compare:
+
+```bash
+python -m benchmark.compare_annotations \
+  --first benchmark/annotations --second benchmark/annotations_second_pass
+```
+
+The pooled agreement F1 is the practical ceiling for any detector scored against
+these annotations, and the signed timing difference shows whether one pass is
+systematically earlier or later. See `docs/evaluation-methodology.md`.
