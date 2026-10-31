@@ -32,7 +32,7 @@ MAX_CAMERA_DRIFT_FRACTION = 0.03  # of frame width, relative to the first frame
 # footage yet, so it must not reject a clip on its own.
 ADVISORY_REQUIREMENTS = {"steady camera"}
 
-MIN_DURATION_SECONDS = 20.0
+MIN_DURATION_SECONDS = 8.0
 MAX_DURATION_SECONDS = 60.0
 MIN_WIDTH = 1280
 MIN_HEIGHT = 720

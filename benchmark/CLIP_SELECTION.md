@@ -27,8 +27,8 @@ bootstrap confidence interval is informative.
 
 ## What to look for
 
-Cover as many of these axes as possible across the new clips. No two test clips
-should share the same match.
+Cover as many of these axes as possible across the new clips. Clips from the
+same match always belong to the same split.
 
 | Axis | Target variety |
 | --- | --- |
@@ -47,7 +47,7 @@ should share the same match.
   and slow motion break the pipeline. Pick clips that do not include them.
 - Whole court visible at the start of the clip, with both players on court.
 - Singles only.
-- 20–60 seconds long, containing one or more complete points.
+- 8–60 seconds long, containing one complete point (see the amendment below).
 - No scoreboard or graphics covering the ball path for long stretches.
 - Original frame rate preserved; do not convert or re-encode with changed FPS.
 
@@ -113,8 +113,8 @@ specific third-party upload.
 
 ### Coverage plan
 
-Eight to ten clips, never two from the same match. Cover as many rows as
-possible.
+Six or more matches, with up to six rallies from each (see the amendment below).
+Cover as many rows as possible.
 
 | Slot | Split | Surface | Draw | Notes |
 | --- | --- | --- | --- | --- |
@@ -169,3 +169,40 @@ Annotate every accepted clip with `python -m benchmark.annotate_shots`. For the
 test split, annotate each clip a second time on a different day and keep both
 files, so that inter-annotation agreement can be measured. Only after all test
 annotations are frozen and committed may any detector be run on those clips.
+
+## Amendment 1: one clip per rally, several rallies per match
+
+*Made before any new clip was inspected, annotated or run through a detector.*
+
+The original requirement of 20–60 s without a cut cannot be met by a full-match
+broadcast: the director cuts to close-ups between points and most rallies last
+under 15 s. The protocol is therefore changed as follows.
+
+- A benchmark clip is **one uninterrupted rally of 8–60 s** from the standard
+  camera. Up to six rallies may be taken from the same match, named
+  `..._rally_01`, `..._rally_02`, and so on.
+- All clips from a match share its split. Because rallies of one match are not
+  independent, the test split must contain **at least four different matches**,
+  and the bootstrap blocks are the 10 s blocks of each clip, so intervals should
+  be read with this clustering in mind.
+- The sample-size target is unchanged: at least 100 scored events in the test
+  split.
+- `benchmark/find_rallies.py` lists the uninterrupted segments of a full match
+  with thumbnails and `ffmpeg` commands; `benchmark/check_clip.py` then verifies
+  each exported clip.
+
+```bash
+python -m benchmark.find_rallies input_videos/benchmark/raw/<match>.mp4 \
+  --thumbnails input_videos/benchmark/candidates/<match>
+```
+
+Replays and slow motion are also uninterrupted segments and cannot be detected
+reliably; every candidate must be checked by eye (the thumbnails help), including
+for a scoreboard or graphic that shows the replay is not live.
+
+### Match assignment (fixed before extraction)
+
+`candidate_matches.csv` lists the full matches supplied by the project author and
+the split assigned to each. Test matches cover one surface each; development gets
+the rest. The identities (players, year) are recorded by the author because they
+could not be verified automatically.
