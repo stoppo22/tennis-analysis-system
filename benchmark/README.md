@@ -206,3 +206,21 @@ Paired difference (persistence_18 − baseline): recall +0.167 [+0.122, +0.241],
 F1 +0.090 [+0.027, +0.149], precision +0.015 [−0.082, +0.091]. The recall gain is
 consistent across blocks; precision is unchanged. The fresh test split will
 provide the unbiased confirmation.
+
+## Ball detections as data
+
+Experiments on the shot-detection rule only need the model's raw per-frame ball
+boxes, not the videos. `benchmark/detections/<clip>.csv` stores them
+(`frame,x1,y1,x2,y2`, empty when the ball was not detected) and contains only
+box coordinates. Export them once, on the machine that holds the local detection
+caches:
+
+```bash
+ls -lt tracker_stubs/ball_detections_*.pkl
+python -m benchmark.detections export \
+  --cache tracker_stubs/ball_detections_<hash>.pkl \
+  --output benchmark/detections/<clip>.csv
+```
+
+The command prints the frame count and detection rate, which identifies the clip
+(the development clip has 1,300 frames, the Wimbledon clip 575).
