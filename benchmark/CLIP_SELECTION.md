@@ -231,3 +231,19 @@ Clips are named `<split>_<match_id>_w<k>_rally_<NN>.mp4`.
 Four test matches with three windows each give about a dozen windows; with one or
 two usable rallies per window this is expected to reach the 100-event target for
 the test split, but this is an estimate and is checked after annotation.
+
+### Matches registered (metadata read from the video pages)
+
+`candidate_matches.csv` holds the title, channel, duration and upload date of each
+match as reported by the video page; players, tournament and year follow from
+those titles. Splits were assigned before the windows were downloaded and
+therefore before any footage was inspected. Two points to keep in mind:
+
+- Carlos Alcaraz appears in three of the six matches (two in the test split, one
+  in development) and Jannik Sinner in the Roland-Garros final and in both
+  original clips, so player diversity is lower than the coverage plan intended.
+  The detectors have two numeric parameters and do not learn player appearance,
+  so this is a limitation on diversity, not a leak.
+- The ATP Finals video is from the 2023 tournament (uploaded in 2025 by Tennis
+  TV), the Rome video is a women's final, and the Wimbledon and US Open matches
+  are women's matches, so the test split covers women's and men's tennis.
