@@ -206,3 +206,28 @@ for a scoreboard or graphic that shows the replay is not live.
 the split assigned to each. Test matches cover one surface each; development gets
 the rest. The identities (players, year) are recorded by the author because they
 could not be verified automatically.
+
+## Amendment 2: random windows instead of whole matches
+
+*Made before any new clip was inspected, annotated or run through a detector.*
+
+Full matches can last several hours, so only short random windows are downloaded.
+
+1. Get the real duration without downloading: `yt-dlp --print duration "<url>"`.
+2. `python -m benchmark.sample_windows <match_id> <duration_seconds> --url "<url>"`
+   prints three non-overlapping windows of 150 s and the matching `yt-dlp`
+   commands. Positions come from a seed derived from the match id, so anyone can
+   regenerate them. The first 10% and the last 5% of the video are excluded
+   (introductions, warm-up, trophy ceremony).
+3. Download the windows, run `find_rallies` on each, and keep **every**
+   uninterrupted live rally of at least 8 s, in chronological order, up to six per
+   match. Do not choose rallies by how clean they look. A window with no usable
+   rally is recorded as such in `candidate_matches.csv`.
+4. Reject a rally only for an objective reason: replay or slow motion, a graphic
+   covering the court, the court not fully visible, or a doubles match.
+
+Clips are named `<split>_<match_id>_w<k>_rally_<NN>.mp4`.
+
+Four test matches with three windows each give about a dozen windows; with one or
+two usable rallies per window this is expected to reach the 100-event target for
+the test split, but this is an estimate and is checked after annotation.
