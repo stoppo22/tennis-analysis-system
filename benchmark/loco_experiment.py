@@ -36,6 +36,12 @@ PERSISTENCE_GRID = [0.52, 0.60, 0.68, 0.72, 0.80, 0.88, 1.00]
 SWING_RATIOS = [0.06, 0.08, 0.10, 0.12, 0.15, 0.18, 0.22, 0.26]
 SWING_SMOOTHING = [0.08, 0.12, 0.20, 0.28]
 
+# Exploratory follow-up: the pre-registered search selected the largest ratio
+# and smoothing on every fold, so the optimum may lie beyond the grid edge.
+EXTENDED_SWING_RATIOS = [0.06, 0.08, 0.10, 0.12, 0.15, 0.18, 0.22, 0.26,
+                         0.30, 0.35, 0.40, 0.45, 0.50]
+EXTENDED_SWING_SMOOTHING = [0.08, 0.12, 0.20, 0.28, 0.36, 0.44, 0.52]
+
 
 def _run_persistence(positions, fps, params):
     (persistence_seconds,) = params
@@ -69,6 +75,12 @@ METHODS = {
         "parameter_names": ("min_swing_ratio", "smoothing_seconds"),
     },
 }
+
+
+def use_extended_grid():
+    METHODS["swing"]["grid"] = list(
+        itertools.product(EXTENDED_SWING_RATIOS, EXTENDED_SWING_SMOOTHING)
+    )
 
 
 def load_clip_data(sources_path, detections_directory, annotations_directory):
@@ -260,7 +272,14 @@ def main(argv=None):
     parser.add_argument("--resamples", type=int, default=10000)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--json", help="Write the full results to this path.")
+    parser.add_argument(
+        "--extended-grid",
+        action="store_true",
+        help="Exploratory: search beyond the pre-registered swing grid.",
+    )
     args = parser.parse_args(argv)
+    if args.extended_grid:
+        use_extended_grid()
 
     clips = load_clip_data(args.sources, args.detections, args.annotations)
     results = run_experiment(clips, args.block_seconds, args.resamples, args.seed)

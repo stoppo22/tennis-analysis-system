@@ -19,8 +19,10 @@ import numpy as np
 
 from utils.shot_detection_utils import duration_to_odd_frames
 
-DEFAULT_MIN_SWING_RATIO = 0.10
-DEFAULT_SWING_SMOOTHING_SECONDS = 0.12
+# Frozen after the leave-one-clip-out study in benchmark/EXPERIMENT_swing_detector.md:
+# the centre of the plateau where both clips are within 0.005 pooled F1 of the best.
+DEFAULT_MIN_SWING_RATIO = 0.40
+DEFAULT_SWING_SMOOTHING_SECONDS = 0.36
 RANGE_PERCENTILES = (5, 95)
 
 

@@ -224,3 +224,22 @@ python -m benchmark.detections export \
 
 The command prints the frame count and detection rate, which identifies the clip
 (the development clip has 1,300 frames, the Wimbledon clip 575).
+
+## Alternating-swing detector
+
+`utils/swing_shot_detection.py` detects shots as large, alternating reversals of
+the ball's vertical position. The comparison with the persistence rule follows a
+protocol committed before the results (`EXPERIMENT_swing_detector.md`):
+leave-one-clip-out selection, 95% block-bootstrap intervals, and a paired
+difference. Summary of the held-out result: precision +0.069 [+0.007, +0.142],
+recall +0.019 [−0.070, +0.122], F1 +0.046 [−0.020, +0.120], timing error about
+0.10 s versus 0.05 s. The F1 gain is not established, and both clips are
+development data. Full results, a documented deviation from the protocol, the
+frozen configuration `swing_v1`, and an error analysis are in
+`EXPERIMENT_swing_detector.md`; the saved outputs are in `results/`.
+
+```bash
+python -m benchmark.loco_experiment                 # pre-registered grid
+python -m benchmark.loco_experiment --extended-grid # exploratory, wider grid
+python -m benchmark.run_benchmark --methods persistence_18 swing_v1
+```

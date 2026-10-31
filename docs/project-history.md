@@ -11,6 +11,7 @@
 | `v0.6` | `e65b6bf` | Shot-detection thresholds normalized by video FPS while preserving the v0.5 results at 25 FPS. |
 | Post-v0.6 | `74f7430` onward | History cleanup, structured CSV export, notebook cleanup, CI, redesigned overlays, model documentation, licensing, visual demo, and clean-clone verification. |
 | `v1.0` | `1b4bf16` | Release with the ball checkpoint distributed as a release asset. |
+| v1.2 (in progress) | branch `v1.2-benchmark-expansion` | Benchmark expansion protocol, block-bootstrap intervals, multi-clip runner, ball detections stored as CSV, and the alternating-swing shot detector with a pre-registered leave-one-clip-out study. |
 
 There is intentionally no `v0.4` tag. The benchmark implementation and the
 measured v0.5 improvement were committed together, so the repository does not

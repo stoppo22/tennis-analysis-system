@@ -13,6 +13,7 @@ from utils.shot_detection_utils import (
     detect_shot_frames,
     interpolate_ball_positions,
 )
+from utils.swing_shot_detection import detect_swing_shot_frames
 
 BENCHMARK = Path(__file__).resolve().parent.parent / "benchmark"
 FPS = 25.0
@@ -51,6 +52,20 @@ class FrozenBenchmarkTest(unittest.TestCase):
                     )
 
                     self.assertEqual([int(frame) for frame in predicted], expected)
+
+    def test_swing_detector_reproduces_frozen_predictions(self):
+        for clip, prediction_stem in CLIPS.items():
+            with self.subTest(clip=clip):
+                positions = interpolate_ball_positions(
+                    load_detections_csv(BENCHMARK / "detections" / f"{clip}.csv")
+                )
+                expected = read_frames(
+                    BENCHMARK / "predictions" / f"{prediction_stem}_swing_v1.csv"
+                )
+
+                predicted = detect_swing_shot_frames(positions, FPS)
+
+                self.assertEqual([int(frame) for frame in predicted], expected)
 
 
 if __name__ == "__main__":
