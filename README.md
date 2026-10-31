@@ -50,7 +50,8 @@ does not establish generalization. Expanding the benchmark is the main item on
 the [roadmap](#roadmap).
 
 Full protocol, metrics, and error analysis: [benchmark/README.md](benchmark/README.md)
-and [benchmark/development_error_analysis.md](benchmark/development_error_analysis.md).
+and [benchmark/development_error_analysis.md](benchmark/development_error_analysis.md);
+the evaluation design is summarised in [docs/evaluation-methodology.md](docs/evaluation-methodology.md).
 The ball detector is documented in its [model card](docs/ball-detector-model-card.md).
 
 ### Alternating-swing detector (v1.2, development evidence)
