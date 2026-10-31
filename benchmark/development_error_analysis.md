@@ -67,4 +67,4 @@ The selected development predictions are stored in
 `predictions/development_australian_open_2024_sinner_medvedev_persistence_18.csv`.
 After this choice was frozen, the selected configuration was evaluated once on
 the test split. No parameter was changed from the test result; the final numbers
-are reported in `README.md`.
+are reported in `benchmark/README.md` and the main `README.md`.
