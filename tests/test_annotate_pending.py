@@ -100,7 +100,17 @@ class PendingAnnotationTest(unittest.TestCase):
         self.assertEqual(rejected, ["new_b"])
         self.assertEqual(row["split"], "rejected")
         self.assertEqual(row["events"], "0")
-        self.assertIn("no point in play", row["notes"])
+        self.assertIn("not a rally", row["notes"])
+
+    def test_clip_with_fewer_than_three_contacts_is_rejected(self):
+        write_events(self.annotations / "new_a.csv", [1.0, 2.0])
+        write_events(self.annotations / "new_b.csv", [1.0, 2.0, 3.0])
+
+        updated, rejected = update_manifest(self.sources, self.annotations)
+
+        self.assertEqual(rejected, ["new_a"])
+        self.assertEqual(updated, ["new_b"])
+        self.assertEqual({r["clip"]: r for r in self.rows()}["new_a"]["split"], "rejected")
 
     def test_update_manifest_preserves_other_rows_and_columns(self):
         before = {r["clip"]: dict(r) for r in self.rows()}

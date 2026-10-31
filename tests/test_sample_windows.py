@@ -1,6 +1,7 @@
 import unittest
 
 from benchmark.sample_windows import (
+    sample_extra_windows,
     download_command,
     format_timestamp,
     sample_windows,
@@ -32,6 +33,19 @@ class SampleWindowsTest(unittest.TestCase):
             self.assertLessEqual(end, next_start)
         self.assertGreaterEqual(windows[0][0], 0.10 * 3 * 3600)
         self.assertLessEqual(windows[-1][1], 0.95 * 3 * 3600)
+
+    def test_extra_windows_keep_the_originals_and_do_not_overlap_them(self):
+        original = sample_windows("match_a", SIX_HOURS, windows=3, length_seconds=150)
+        extra = sample_extra_windows(
+            "match_a", SIX_HOURS, already=3, extra=3, length_seconds=150
+        )
+
+        self.assertEqual(original, sample_windows("match_a", SIX_HOURS))
+        self.assertEqual(len(extra), 3)
+        self.assertEqual(extra, sorted(extra))
+        for start, _ in extra:
+            for other, _ in original:
+                self.assertGreaterEqual(abs(start - other), 149)
 
     def test_too_short_video_is_rejected(self):
         with self.assertRaises(ValueError):
