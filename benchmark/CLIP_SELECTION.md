@@ -151,17 +151,16 @@ Keep source downloads and clips under `input_videos/`, which Git ignores.
 python -m benchmark.check_clip input_videos/benchmark/<clip>.mp4
 ```
 
-The checker verifies resolution, duration, absence of shot changes and camera
-steadiness, computes the SHA-256, and prints a `sources.csv` row. It does **not**
-replace a visual check of the court, the players, singles play, and the absence
-of replays or slow motion.
+The checker verifies resolution and duration and the absence of shot changes,
+computes the SHA-256, and prints a `sources.csv` row. It does **not** replace a
+visual check of the court, the players, singles play, the camera angle, and the
+absence of replays or slow motion.
 
-**Camera check is advisory.** The camera-drift threshold was validated only on
-synthetic video and on a six-second demo excerpt (17.8 px against a limit of about
-22 px), so a warning does not reject a clip; look at it by eye. After the first
-five or six accepted clips, compare the measured drift of clips that look steady
-with those that visibly pan or zoom, and set `MAX_CAMERA_DRIFT_FRACTION` (and
-remove the advisory flag) from that evidence.
+**Camera steadiness is not checked automatically.** An automatic drift measure was
+tried and removed as a criterion: on 26 clips judged steady by eye it measured
+65-168 px (at 1920 px wide), and on five candidates rejected for camera movement
+103-171 px, so it does not separate the two. It is still printed, labelled
+informational. See Amendment 3 for how steadiness was judged.
 
 ### Annotation
 
@@ -261,3 +260,38 @@ therefore before any footage was inspected. Two points to keep in mind:
 - The ATP Finals video is from the 2023 tournament (uploaded in 2025 by Tennis
   TV), the Rome video is a women's final, and the Wimbledon and US Open matches
   are women's matches, so the test split covers women's and men's tennis.
+
+## Amendment 3: candidate triage by visual review
+
+*Made after the windows were downloaded and before any clip was annotated or run
+through a detector.*
+
+An uninterrupted segment of at least 8 s is **not** a rally. Most such segments in
+a broadcast are close-ups, crowd shots, player boxes, serve preparation or
+changeovers, and a few contain a shot change that the detector missed. The review
+therefore added a visual step:
+
+1. For each of the 91 candidates found in the 18 downloaded windows, three frames
+   (at 10%, 50% and 90% of the segment) were inspected.
+2. A candidate was **accepted** if all three frames show the standard high camera
+   behind a baseline with the whole court and the same shot throughout. It was
+   **rejected** if it is a close-up, crowd or box shot, a stadium panorama, a low
+   or sideline camera angle, a moving or zooming camera, or if the frames show
+   different shots (an undetected cut).
+3. At most six clips are kept per match, in chronological order; the rest are
+   marked `excluded`.
+4. Every decision and its reason is recorded in `candidates_review.csv`.
+
+Result: 26 clips accepted (20 in the test split, 6 in development) out of 91
+candidates. Frame rates are mixed (23.976, 25, 50 and 59.94 FPS), all clips are
+1920x1080, and the clips total about 5 minutes.
+
+Limits of this review: it is a single human judgement made from still frames, not
+repeated by a second person; it cannot detect replays or slow motion that look
+like a live wide shot; and a clip that turns out to contain no point in play is
+rejected at annotation time for that reason.
+
+**Expected size.** At about 4-5 hits per clip the 20 test clips would hold fewer
+than the 100 events targeted. This is checked after annotation; if the target is
+not met, further windows will be sampled with the same procedure before any
+detector is run on the test split.

@@ -1,9 +1,10 @@
 """Check a candidate benchmark clip against the selection protocol.
 
 The requirements in ``CLIP_SELECTION.md`` are verified automatically where
-possible: a single continuous shot (no cuts, replays or slow motion
-transitions), a steady camera, resolution, frame rate and duration. The script
-also computes the SHA-256 of the file and prints a ``sources.csv`` row.
+possible: a single continuous shot (no cuts), resolution and duration. The script
+also computes the SHA-256 of the file, reports the frame rate, and prints a
+``sources.csv`` row. Camera steadiness is *not* checked automatically (see
+``measure_camera_drift``).
 
     python -m benchmark.check_clip input_videos/benchmark/<clip>.mp4
 
@@ -26,11 +27,6 @@ CUT_MEAN_DIFFERENCE_THRESHOLD = 25.0
 TILE_SIZE = (80, 60)  # 4 x 3 tiles over the analysis frame
 MIN_TILE_RESPONSE = 0.05
 MIN_RELIABLE_TILES = 4
-MAX_CAMERA_DRIFT_FRACTION = 0.03  # of frame width, relative to the first frame
-
-# Reported but not blocking: the drift threshold has not been calibrated on real
-# footage yet, so it must not reject a clip on its own.
-ADVISORY_REQUIREMENTS = {"steady camera"}
 
 MIN_DURATION_SECONDS = 8.0
 MAX_DURATION_SECONDS = 60.0
@@ -100,6 +96,12 @@ def _tile_shifts(reference, frame, tile_window):
 def measure_camera_drift(analysis_frames, original_width):
     """Largest global shift (in original pixels) relative to the first frame.
 
+    **Informational only.** On real broadcast footage this measure does not
+    separate steady shots from panning or zooming ones: 26 clips judged steady
+    by eye measured 65-168 px at 1920 px wide, and five candidates rejected for
+    camera movement measured 103-171 px. It is reported but never used to accept
+    or reject a clip.
+
     The frame is split into tiles and the *median* tile shift is used, so players
     and the ball moving in a few tiles do not register as camera motion.
     """
@@ -118,22 +120,16 @@ def measure_camera_drift(analysis_frames, original_width):
     return largest
 
 
-def evaluate_requirements(metadata, cuts, camera_drift):
+def evaluate_requirements(metadata, cuts):
     """Return ``[(requirement, passed, detail)]`` for the protocol checks."""
     width, height = metadata["width"], metadata["height"]
     duration = metadata["duration_seconds"]
-    drift_limit = MAX_CAMERA_DRIFT_FRACTION * width
 
     return [
         (
             "single continuous shot (no cuts)",
             not cuts,
             "no shot changes detected" if not cuts else f"cuts at {cuts[:8]} s",
-        ),
-        (
-            "steady camera",
-            camera_drift <= drift_limit,
-            f"max drift {camera_drift:.1f}px (limit {drift_limit:.0f}px)",
         ),
         (
             f"duration {MIN_DURATION_SECONDS:g}-{MAX_DURATION_SECONDS:g} s",
@@ -185,7 +181,7 @@ def check_clip(video_path):
     metadata, analysis_frames = read_clip(video_path)
     cuts = find_cuts(analysis_frames, metadata["fps"])
     drift = measure_camera_drift(analysis_frames, metadata["width"])
-    requirements = evaluate_requirements(metadata, cuts, drift)
+    requirements = evaluate_requirements(metadata, cuts)
     return {
         "clip": video_path.stem,
         "sha256": file_sha256(video_path),
@@ -196,11 +192,7 @@ def check_clip(video_path):
             {"requirement": name, "passed": passed, "detail": detail}
             for name, passed, detail in requirements
         ],
-        "passed": all(
-            passed
-            for name, passed, _ in requirements
-            if name not in ADVISORY_REQUIREMENTS
-        ),
+        "passed": all(passed for _, passed, _ in requirements),
     }
 
 
@@ -232,10 +224,12 @@ def print_report(report):
         f"{report['frame_count']} frames, {report['duration_seconds']:.1f} s"
     )
     for item in report["requirements"]:
-        advisory = item["requirement"] in ADVISORY_REQUIREMENTS
-        mark = "ok  " if item["passed"] else ("warn" if advisory else "FAIL")
-        suffix = " (advisory)" if advisory else ""
-        print(f"  [{mark}] {item['requirement']}{suffix}: {item['detail']}")
+        mark = "ok  " if item["passed"] else "FAIL"
+        print(f"  [{mark}] {item['requirement']}: {item['detail']}")
+    print(
+        f"  camera drift {report['camera_drift_pixels']:.0f}px "
+        "(informational, not validated; judge camera steadiness by eye)"
+    )
     print(f"  sha256: {report['sha256']}")
     print("  Still to confirm by eye: full court visible, both players on court,")
     print("  singles, no replay or slow motion.")

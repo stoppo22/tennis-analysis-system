@@ -82,19 +82,18 @@ class EvaluateRequirementsTest(unittest.TestCase):
     metadata = {"width": 1280, "height": 720, "duration_seconds": 30.0}
 
     def test_all_requirements_pass_for_a_good_clip(self):
-        results = evaluate_requirements(self.metadata, cuts=[], camera_drift=4.0)
+        results = evaluate_requirements(self.metadata, cuts=[])
 
         self.assertTrue(all(passed for _, passed, _ in results))
 
     def test_each_requirement_can_fail(self):
         failing = {
-            "cuts": evaluate_requirements(self.metadata, [3.0], 4.0),
-            "drift": evaluate_requirements(self.metadata, [], 500.0),
+            "cuts": evaluate_requirements(self.metadata, [3.0]),
             "duration": evaluate_requirements(
-                {**self.metadata, "duration_seconds": 5.0}, [], 4.0
+                {**self.metadata, "duration_seconds": 5.0}, []
             ),
             "resolution": evaluate_requirements(
-                {**self.metadata, "width": 640, "height": 360}, [], 4.0
+                {**self.metadata, "width": 640, "height": 360}, []
             ),
         }
 

@@ -38,13 +38,30 @@ def load_clips(sources_path, splits=None):
         required = {"clip", "split"}
         if reader.fieldnames is None or not required <= set(reader.fieldnames):
             raise ValueError(f"{sources_path} must contain columns {sorted(required)}.")
-        clips = [(row["clip"], row["split"]) for row in reader]
+        # A blank "events" cell marks a clip that is not annotated yet; it is
+        # skipped here and counted by ``count_pending_clips``.
+        clips = [
+            (row["clip"], row["split"])
+            for row in reader
+            if row.get("events", "x").strip() != ""
+        ]
 
     if splits:
         clips = [(clip, split) for clip, split in clips if split in splits]
     if not clips:
         raise ValueError("No clips match the requested splits.")
     return clips
+
+
+def count_pending_clips(sources_path, splits=None):
+    """Number of clips in the manifest that are not annotated yet."""
+    with Path(sources_path).open(newline="", encoding="utf-8") as csv_file:
+        return sum(
+            1
+            for row in csv.DictReader(csv_file)
+            if row.get("events", "x").strip() == ""
+            and (not splits or row["split"] in splits)
+        )
 
 
 def find_predictions_path(predictions_directory, clip, method):
@@ -114,6 +131,7 @@ def build_report(args):
         "resamples": args.resamples,
         "confidence": args.confidence,
         "seed": args.seed,
+        "pending_clips": count_pending_clips(args.sources, args.splits),
         "methods": {},
     }
     counts_by_method = {}
@@ -170,6 +188,9 @@ def print_report(report):
         f"({'whole clip' if block is None else f'{block:g} s blocks'}, "
         f"{report['resamples']} resamples, seed {report['seed']})"
     )
+
+    if report["pending_clips"]:
+        print(f"({report['pending_clips']} clips are pending annotation and are not included)")
 
     for method, result in report["methods"].items():
         events = result["events"]
