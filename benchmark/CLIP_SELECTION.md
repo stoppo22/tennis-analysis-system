@@ -170,6 +170,20 @@ test split, annotate each clip a second time on a different day and keep both
 files, so that inter-annotation agreement can be measured. Only after all test
 annotations are frozen and committed may any detector be run on those clips.
 
+### Inter-annotation agreement
+
+Store the second pass in a separate directory (for example
+`benchmark/annotations_second_pass/`, same file names) and compare:
+
+```bash
+python -m benchmark.compare_annotations \
+  --first benchmark/annotations --second benchmark/annotations_second_pass
+```
+
+The pooled agreement F1 is the practical ceiling for any detector scored against
+these annotations, and the signed timing difference shows whether one pass is
+systematically earlier or later. See `docs/evaluation-methodology.md`.
+
 ## Amendment 1: one clip per rally, several rallies per match
 
 *Made before any new clip was inspected, annotated or run through a detector.*

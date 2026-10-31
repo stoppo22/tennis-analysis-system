@@ -1,6 +1,6 @@
 import unittest
 
-from trackers.player_tracker import PlayerTracker
+from tennis_analysis.trackers.player_tracker import PlayerTracker
 
 
 class PlayerTrackerTest(unittest.TestCase):

@@ -21,12 +21,12 @@ from benchmark.bootstrap import (
 )
 from benchmark.detections import load_detections_csv
 from benchmark.evaluate_events import evaluate_events, load_event_times
-from utils.shot_detection_utils import (
+from tennis_analysis.utils.shot_detection_utils import (
     DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,
     interpolate_ball_positions,
 )
-from utils.swing_shot_detection import detect_swing_shot_frames
+from tennis_analysis.utils.swing_shot_detection import detect_swing_shot_frames
 
 BENCHMARK_DIRECTORY = Path(__file__).resolve().parent
 TOLERANCE_SECONDS = 0.25
@@ -251,7 +251,7 @@ def print_results(results):
             print(f"  {name:>9}: {m['value']:.4f} [{m['ci_low']:.4f}, {m['ci_high']:.4f}]")
         s = summary["sensitivity"]
         print(
-            f"  oracle (in-sample best): "
+            "  oracle (in-sample best): "
             + ", ".join(f"{v['f1']:.3f}" for v in summary["oracle_best_per_clip"].values())
             + f" | near-best on every clip: {s['near_best_on_every_clip']}/{s['grid_size']}\n"
         )

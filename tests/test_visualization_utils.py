@@ -2,9 +2,9 @@ import unittest
 
 import numpy as np
 
-from mini_court import MiniCourt
-from utils.player_stats_drawer_utils import _get_stats_panel_bounds
-from utils.visualization_utils import (
+from tennis_analysis.mini_court import MiniCourt
+from tennis_analysis.utils.player_stats_drawer_utils import _get_stats_panel_bounds
+from tennis_analysis.utils.visualization_utils import (
     draw_corner_box,
     draw_label,
     draw_translucent_panel,

@@ -17,7 +17,7 @@ extremum with no smoothing lag, and (3) enforces alternation.
 
 import numpy as np
 
-from utils.shot_detection_utils import duration_to_odd_frames
+from tennis_analysis.utils.shot_detection_utils import duration_to_odd_frames
 
 # Frozen after the leave-one-clip-out study in benchmark/EXPERIMENT_swing_detector.md:
 # the centre of the plateau where both clips are within 0.005 pooled F1 of the best.
