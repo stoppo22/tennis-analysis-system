@@ -59,7 +59,7 @@ def format_timestamp(seconds):
 
 def download_command(match_id, url, number, start, end):
     return (
-        'yt-dlp -f "bv*[height<=1080]" --force-keyframes-at-cuts '
+        'yt-dlp -f "bv*[height<=1080][protocol=https]" --force-keyframes-at-cuts '
         f'--download-sections "*{format_timestamp(start)}-{format_timestamp(end)}" '
         f'-o "input_videos/benchmark/raw/{match_id}_w{number}.%(ext)s" "{url}"'
     )
