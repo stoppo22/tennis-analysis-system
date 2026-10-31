@@ -74,7 +74,6 @@ and the F1 gain is not statistically distinguishable from zero with two clips.
 Both clips are now development data, so this is not a generalization claim; the
 confirming evaluation is a fresh test split. Details, deviations from the
 protocol, and error analysis: [benchmark/EXPERIMENT_swing_detector.md](benchmark/EXPERIMENT_swing_detector.md).
-A plain-language Italian explanation is in [docs/guida-in-italiano.md](docs/guida-in-italiano.md).
 
 ## Quick start
 
