@@ -1,9 +1,11 @@
 import csv
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from benchmark.annotate_shots import (
+    close_windows,
     add_shot_frame,
     frame_to_seconds,
     save_annotations,
@@ -37,6 +39,18 @@ class AnnotateShotsTest(unittest.TestCase):
                 {"frame": "50", "time_seconds": "2.000000"},
             ],
         )
+
+
+class CloseWindowsTest(unittest.TestCase):
+    def test_windows_are_destroyed_and_events_are_processed_afterwards(self):
+        calls = []
+        with mock.patch("benchmark.annotate_shots.cv2") as fake_cv2:
+            fake_cv2.destroyAllWindows.side_effect = lambda: calls.append("destroy")
+            fake_cv2.waitKey.side_effect = lambda _delay: calls.append("pump")
+
+            close_windows(event_pumps=3)
+
+        self.assertEqual(calls, ["destroy", "pump", "pump", "pump"])
 
 
 if __name__ == "__main__":

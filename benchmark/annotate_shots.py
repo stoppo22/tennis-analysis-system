@@ -74,6 +74,18 @@ def draw_status(frame, frame_number, fps, annotation_count, paused):
     return display_frame
 
 
+def close_windows(event_pumps=10):
+    """Close the OpenCV windows and let the window system actually process it.
+
+    On macOS ``destroyAllWindows`` only takes effect once events are processed, so
+    without a few ``waitKey`` calls the window stays on screen, unresponsive,
+    while the program waits for something else (for example the next clip).
+    """
+    cv2.destroyAllWindows()
+    for _ in range(event_pumps):
+        cv2.waitKey(1)
+
+
 def annotate_video(video_path, output_path):
     video = cv2.VideoCapture(str(video_path))
     if not video.isOpened():
@@ -134,7 +146,7 @@ def annotate_video(video_path, output_path):
         print(f"Reached the end. Saved {len(shot_frames)} shots to {output_path}")
     finally:
         video.release()
-        cv2.destroyAllWindows()
+        close_windows()
 
 
 def parse_args():
