@@ -243,3 +243,29 @@ python -m benchmark.loco_experiment                 # pre-registered grid
 python -m benchmark.loco_experiment --extended-grid # exploratory, wider grid
 python -m benchmark.run_benchmark --methods persistence_18 swing_v1
 ```
+
+## Annotating the selected clips
+
+`benchmark/annotate_pending.py` runs the annotator on the clips that still need
+ground truth, one after the other, and skips the ones already done, so the work can
+be split across sessions. It needs OpenCV with a graphical interface
+(`opencv-python`, not the `headless` build).
+
+```bash
+# first pass over the test split (run it for "development" afterwards)
+python -m benchmark.annotate_pending --split test
+
+# second pass on a different day, in a fixed random order, written to
+# benchmark/annotations_second_pass/ without showing the first pass
+python -m benchmark.annotate_pending --split test --second-pass
+
+# record the event counts in sources.csv; clips with no shot move to the
+# "rejected" split (no point in play)
+python -m benchmark.annotate_pending --update-manifest
+
+# agreement between the two passes
+python -m benchmark.compare_annotations \
+  --first benchmark/annotations --second benchmark/annotations_second_pass
+```
+
+Annotations must not be derived from the output of any detector.
