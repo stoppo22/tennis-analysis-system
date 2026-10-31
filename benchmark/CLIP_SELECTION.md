@@ -337,3 +337,32 @@ split.
 
 The first-pass annotations are frozen with this change. The second pass (for
 inter-annotation agreement) is made later without looking at them.
+
+## Amendment 5: second set of windows for the test matches
+
+*Made after the first-pass test annotations were frozen (Amendment 4) and before any
+detector was run on any test clip.*
+
+The first set gave 105 contacts in 14 rallies, only just above the minimum of 100.
+To narrow the confidence intervals of the final comparison, three more windows were
+sampled for each of the four test matches with
+`python -m benchmark.sample_windows <match_id> <duration> --extra 3`. These continue
+the original seeded draw: the first windows keep their numbers and the new ones
+(w4-w6) never overlap them.
+
+The triage of Amendment 3 was repeated unchanged on the 56 candidates found in the
+12 new windows, with every decision and reason appended to `candidates_review.csv`.
+The per-match cap of six clips applies to this second set separately. Result:
+
+| Match | Candidates | Accepted |
+| --- | ---: | ---: |
+| Roland-Garros 2025 final | 17 | 5 |
+| US Open 2026 final | 15 | 5 |
+| Wimbledon 2026 | 10 | 4 |
+| Nitto ATP Finals 2023 | 14 | 3 |
+| **Total** | **56** | **17** |
+
+The 17 clips (252 s, 25 / 50 / 59.94 FPS, all 1920x1080) pass `check_clip` and are
+registered in `sources.csv` as pending annotation. The same annotation convention
+and the three-contact rule of Amendment 4 apply. The test split will be frozen again
+once these clips are annotated; the second annotation pass covers both sets.
