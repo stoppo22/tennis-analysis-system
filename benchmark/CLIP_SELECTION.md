@@ -295,3 +295,45 @@ rejected at annotation time for that reason.
 than the 100 events targeted. This is checked after annotation; if the target is
 not met, further windows will be sampled with the same procedure before any
 detector is run on the test split.
+
+## Amendment 4: what counts as a contact and as a rally
+
+*Made after the first annotation pass of the test clips was completed and before any
+detector was run on them. The threshold was written into the code before the
+annotation counts were opened.*
+
+**Annotation convention for the new clips.** Every racket-ball contact of a point is
+marked, **including the serve that starts the point, faulted serves, and shots that
+go out or into the net**. Contacts after the point has ended (for example a ball
+hit away in frustration) are not marked. The two original clips were annotated under
+the earlier wording ("while the point is in play"); a faulted serve was not
+treated explicitly there, so that wording is superseded by this convention for all
+later annotation.
+
+**Rally rule.** A clip is a rally only if it has **at least three** annotated
+contacts (a serve, a return and one more). Clips with fewer are moved to the
+`rejected` split. A wide shot of a serve and a fault, or of a point cut short, is
+not a rally, and the visual triage of Amendment 3 cannot tell the two apart from
+still frames. The rule applies to the content of the clip, not to any detector
+output.
+
+**Outcome of the first pass.** Of 20 test clips, 14 are rallies (105 contacts,
+4 matches) and 6 are rejected (five with 2 contacts, one with 1):
+
+| Match | Clips kept | Contacts |
+| --- | ---: | ---: |
+| Nitto ATP Finals 2023 | 3 | 29 |
+| Roland-Garros 2025 final | 4 | 33 |
+| US Open 2026 final | 4 | 26 |
+| Wimbledon 2026 | 3 | 17 |
+| **Total** | **14** | **105** |
+
+This meets the minimum of 100 events and four matches, but only just, and the
+paired comparisons will have wide intervals. More windows can be sampled with
+`python -m benchmark.sample_windows <match_id> <duration> --extra 3`, which
+continues the original seeded draw without changing the numbering or overlapping
+the first windows. Doing so is allowed only before any detector is run on the test
+split.
+
+The first-pass annotations are frozen with this change. The second pass (for
+inter-annotation agreement) is made later without looking at them.

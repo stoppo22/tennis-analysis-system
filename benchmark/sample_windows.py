@@ -23,20 +23,14 @@ def seed_from_match_id(match_id):
     return int(hashlib.sha256(match_id.encode("utf-8")).hexdigest()[:8], 16)
 
 
-def sample_windows(
-    match_id,
-    duration_seconds,
-    windows=DEFAULT_WINDOWS,
-    length_seconds=DEFAULT_LENGTH_SECONDS,
-    seed=None,
-):
-    """Return ``windows`` non-overlapping ``(start, end)`` pairs, sorted."""
-    if windows < 1 or length_seconds <= 0:
+def _draw_windows(match_id, duration_seconds, count, length_seconds, seed=None):
+    """``count`` non-overlapping window starts, in the order they were drawn."""
+    if count < 1 or length_seconds <= 0:
         raise ValueError("Need at least one window of positive length.")
 
     low = START_FRACTION * duration_seconds
     high = END_FRACTION * duration_seconds - length_seconds
-    if high <= low or (high - low) < (windows - 1) * length_seconds:
+    if high <= low or (high - low) < (count - 1) * length_seconds:
         raise ValueError("The video is too short for the requested windows.")
 
     rng = random.Random(seed_from_match_id(match_id) if seed is None else seed)
@@ -45,12 +39,43 @@ def sample_windows(
         start = rng.uniform(low, high)
         if all(abs(start - other) >= length_seconds for other in chosen):
             chosen.append(start)
-            if len(chosen) == windows:
-                break
-    else:
-        raise ValueError("Could not place non-overlapping windows.")
+            if len(chosen) == count:
+                return chosen
+    raise ValueError("Could not place non-overlapping windows.")
 
-    return [(int(start), int(start) + int(length_seconds)) for start in sorted(chosen)]
+
+def _as_windows(starts, length_seconds):
+    return [(int(start), int(start) + int(length_seconds)) for start in sorted(starts)]
+
+
+def sample_windows(
+    match_id,
+    duration_seconds,
+    windows=DEFAULT_WINDOWS,
+    length_seconds=DEFAULT_LENGTH_SECONDS,
+    seed=None,
+):
+    """Return ``windows`` non-overlapping ``(start, end)`` pairs, sorted."""
+    return _as_windows(
+        _draw_windows(match_id, duration_seconds, windows, length_seconds, seed),
+        length_seconds,
+    )
+
+
+def sample_extra_windows(
+    match_id,
+    duration_seconds,
+    already=DEFAULT_WINDOWS,
+    extra=DEFAULT_WINDOWS,
+    length_seconds=DEFAULT_LENGTH_SECONDS,
+):
+    """Further windows that continue the draw after the first ``already`` ones.
+
+    The first ``already`` draws are exactly those of :func:`sample_windows`, so the
+    extra windows never overlap them and the original windows keep their numbers.
+    """
+    draws = _draw_windows(match_id, duration_seconds, already + extra, length_seconds)
+    return _as_windows(draws[already:], length_seconds)
 
 
 def format_timestamp(seconds):
@@ -72,6 +97,12 @@ def main(argv=None):
     parser.add_argument("--windows", type=int, default=DEFAULT_WINDOWS)
     parser.add_argument("--length-seconds", type=int, default=DEFAULT_LENGTH_SECONDS)
     parser.add_argument("--url", default="<url>")
+    parser.add_argument(
+        "--extra",
+        type=int,
+        default=0,
+        help="Also print this many further windows, numbered after the first ones.",
+    )
     args = parser.parse_args(argv)
 
     selected = sample_windows(
@@ -81,6 +112,15 @@ def main(argv=None):
     for number, (start, end) in enumerate(selected, start=1):
         print(f"w{number}  {format_timestamp(start)} -> {format_timestamp(end)}")
         print(f"    {download_command(args.match_id, args.url, number, start, end)}")
+
+    if args.extra:
+        more = sample_extra_windows(
+            args.match_id, args.duration_seconds, args.windows, args.extra, args.length_seconds
+        )
+        print(f"\nextra windows (continuing after w{args.windows}):")
+        for number, (start, end) in enumerate(more, start=args.windows + 1):
+            print(f"w{number}  {format_timestamp(start)} -> {format_timestamp(end)}")
+            print(f"    {download_command(args.match_id, args.url, number, start, end)}")
 
 
 if __name__ == "__main__":

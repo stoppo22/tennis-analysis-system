@@ -12,13 +12,15 @@ first annotation but no second one, offered in a fixed random order and written 
     python -m benchmark.annotate_pending --split test --second-pass
 
 When you have finished, record the event counts in the manifest. A clip with no
-shot at all is moved to the ``rejected`` split ("no point in play"):
+shot at all, or fewer than three contacts, is moved to the ``rejected`` split
+("no rally"):
 
     python -m benchmark.annotate_pending --update-manifest
 
 The window needs OpenCV with a graphical interface (``opencv-python``, not the
 ``headless`` build). Controls are those of ``benchmark.annotate_shots``: space
 play/pause, A/D previous/next frame, H mark a contact, U undo, Q save and next clip.
+Mark every racket-ball contact of the point, including a faulted serve.
 """
 
 import argparse
@@ -30,6 +32,7 @@ from benchmark.evaluate_events import load_event_times
 
 BENCHMARK_DIRECTORY = Path(__file__).resolve().parent
 SECOND_PASS_SEED = 0
+MIN_CONTACTS = 3  # a rally needs the serve, a return and at least one more contact
 
 
 def read_manifest(sources_path):
@@ -61,8 +64,9 @@ def select_clips(rows, split, annotations_dir, second_pass_dir, second_pass=Fals
 def update_manifest(sources_path, annotations_dir):
     """Fill the ``events`` column from the annotation files.
 
-    Returns ``(updated, rejected)`` clip names. Clips with no event are moved to
-    the ``rejected`` split because no point was in play.
+    Returns ``(updated, rejected)`` clip names. Clips with fewer than
+    ``MIN_CONTACTS`` events are moved to the ``rejected`` split: they are not
+    rallies (for example a faulted serve or a point cut short).
     """
     rows, fieldnames = read_manifest(sources_path)
     annotations_dir = Path(annotations_dir)
@@ -76,9 +80,9 @@ def update_manifest(sources_path, annotations_dir):
             continue
         count = len(load_event_times(path))
         row["events"] = str(count)
-        if count == 0:
+        if count < MIN_CONTACTS:
             row["split"] = "rejected"
-            row["notes"] = "rejected: no point in play"
+            row["notes"] = f"rejected: {count} contacts, not a rally (minimum {MIN_CONTACTS})"
             rejected.append(row["clip"])
         else:
             if row.get("notes", "") == "pending annotation":
@@ -105,8 +109,11 @@ def annotate_in_sequence(clips, videos_dir, output_dir):
         print(f"\n[{position}/{len(clips)}] {clip}")
         annotate_video(video, output)
 
-        if output.is_file() and not load_event_times(output):
-            print("  No shot recorded: this clip will be rejected as 'no point in play'.")
+        if output.is_file() and len(load_event_times(output)) < MIN_CONTACTS:
+            print(
+                f"  Fewer than {MIN_CONTACTS} contacts: this clip is not a rally "
+                "and will be rejected when the manifest is updated."
+            )
         if position < len(clips):
             answer = input("Press Enter for the next clip, or type q to stop: ").strip().lower()
             if answer == "q":
@@ -128,7 +135,10 @@ def main(argv=None):
 
     if args.update_manifest:
         updated, rejected = update_manifest(args.sources, args.annotations)
-        print(f"Updated {len(updated)} clips; rejected {len(rejected)} with no shots.")
+        print(
+            f"Updated {len(updated)} clips; rejected {len(rejected)} "
+            f"with fewer than {MIN_CONTACTS} contacts."
+        )
         return
 
     rows, _ = read_manifest(args.sources)
