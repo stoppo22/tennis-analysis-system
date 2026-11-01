@@ -31,6 +31,14 @@ and evaluation are:
 fe166be4ebc9ca6fa1278cea252028fd242ef20bc593554c5fa2d98d82799962  models/keypoints_model.pth
 ```
 
+**Note on the court-keypoint checksum.** The checksum above is that of the file used
+for the development and evaluation runs. The file currently served at the Drive link
+has a different SHA-256 (`16ebb7e46dc88247440c86b388e4f07f0d4abb76ce0a01a22925d3163f7fb7f3`,
+94,582,426 bytes, dated March 2024) when downloaded on 1 November 2026. It loads and
+runs in the pipeline, but it has not been compared with the original file, so results
+obtained with it may differ slightly from the reported ones. The reason for the
+difference was not established.
+
 On macOS, verify them with:
 
 ```bash

@@ -139,8 +139,17 @@ tennis-analysis \
   --output output_videos/output_video.avi
 ```
 
-`python -m tennis_analysis` is equivalent. Use `--shot-detector swing` to select
-the alternating-swing detector (default: `persistence`, the original rule).
+`python -m tennis_analysis` is equivalent. Two options change how shots are found:
+
+- `--shot-detector swing` selects the alternating-swing detector (default:
+  `persistence`, the original rule);
+- `--suppress-static` removes ball detections that stay in the same place for about a
+  second, which are usually marks on the court mistaken for the ball.
+
+On the held-out test clips the combination `swing` plus `--suppress-static` gave the
+best F1 (see [Results](#results)). Both are off by default so that existing behaviour
+does not change; a complete run of the pipeline with both options on a 271-frame clip
+produced a video and a statistics CSV with one row per frame.
 
 This creates the annotated video and, next to it,
 `output_video_statistics.csv`. Use `--statistics-output` to choose another CSV
