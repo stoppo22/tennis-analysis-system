@@ -32,49 +32,58 @@ video ─► player detection (YOLO11 + tracking) ─┐
 
 ## Results
 
-The central, measurable part of the project is a small video-separated
-benchmark for shot-event detection. The improvement over the original rule was
-selected using only the development video and evaluated once on the test video.
-Events are matched one-to-one within ±0.25 s.
+Shot-event detection (the instants at which a player hits the ball) is evaluated on
+a hand-annotated benchmark split by source match. Events are matched one-to-one
+within ±0.25 s, and intervals are 95% block-bootstrap intervals.
 
-| Split | Events | Baseline F1 | Improved F1 |
+### Held-out test: 28 clips, 208 contacts, 4 matches
+
+The test clips were sampled at random from four full matches (clay, hard, grass and
+indoor hard; 25, 50 and 59.94 FPS), annotated by hand and **frozen before any
+detector was run on them**. The two methods and their parameters were fixed on
+development data and each was evaluated **once**:
+
+| Method | Precision | Recall | F1 |
 | --- | ---: | ---: | ---: |
-| Development | 39 | 0.7500 | 0.8293 |
-| Test | 15 | 0.5806 | 0.6875 |
+| Original rule, 1.0 s persistence | 0.489 [0.374, 0.594] | 0.317 [0.236, 0.402] | 0.385 [0.293, 0.471] |
+| Persistence rule, 0.72 s (`persistence_18`) | 0.458 [0.363, 0.548] | 0.466 [0.376, 0.555] | 0.462 [0.375, 0.544] |
+| **Alternating-swing detector (`swing_v1`)** | **0.587 [0.500, 0.670]** | **0.567 [0.484, 0.649]** | **0.577 [0.499, 0.651]** |
 
-**Read these numbers with care.** The test split is a single clip with 15
-events, so the gain corresponds to two additional true positives (9 → 11). The
-benchmark has no confidence intervals and both clips are 25 FPS broadcast
-footage featuring the same player. It shows the method is sound on this data; it
-does not establish generalization. Expanding the benchmark is the main item on
-the [roadmap](#roadmap).
+Paired difference, `swing_v1` minus `persistence_18` (same resampled blocks):
+precision **+0.130 [+0.058, +0.201]**, recall **+0.101 [+0.046, +0.160]**, F1
+**+0.115 [+0.063, +0.168]**. The intervals exclude zero. F1 is higher in all four
+matches and on 21 of the 28 clips (lower on 5, equal on 2).
 
-Full protocol, metrics, and error analysis: [benchmark/README.md](benchmark/README.md)
-and [benchmark/development_error_analysis.md](benchmark/development_error_analysis.md);
-the evaluation design is summarised in [docs/evaluation-methodology.md](docs/evaluation-methodology.md).
-The ball detector is documented in its [model card](docs/ball-detector-model-card.md).
+How to read this:
 
-### Alternating-swing detector (v1.2, development evidence)
+- **The gain is established on unseen data**, and it matches the direction seen on
+  development data. It is a comparison of two shot-event rules on the same ball
+  detections, not a claim about tennis analysis in general.
+- **Absolute performance is modest.** F1 is 0.58, well below the development
+  clips (0.79-0.86). The ball model detects the ball in only 47.5% of the test
+  frames (66% in one match, 28-34% in the other three), and event detection
+  inherits that. The reason for the drop was not investigated.
+- **Timing is less accurate**: mean timing error of matched events is 0.117 s for
+  `swing_v1` against 0.077 s for `persistence_18`.
+- **Limits of the data:** one annotator and a first pass only (the second pass that
+  bounds annotation noise is not done yet), four matches whose clips are not
+  independent, and two matches share a player.
 
-A second shot detector (`utils/swing_shot_detection.py`) treats the ball's
-vertical position as a wave between the two players and accepts only large,
-alternating reversals. It was compared with the original rule under a
-pre-registered leave-one-clip-out protocol, with both methods tuned the same
-way (54 events, 95% block-bootstrap intervals):
+Full protocol, amendments, selection record and the pre-registered development
+study: [benchmark/README.md](benchmark/README.md),
+[benchmark/CLIP_SELECTION.md](benchmark/CLIP_SELECTION.md) and
+[benchmark/EXPERIMENT_swing_detector.md](benchmark/EXPERIMENT_swing_detector.md). The
+evaluation design is summarised in
+[docs/evaluation-methodology.md](docs/evaluation-methodology.md), and the ball
+detector in its [model card](docs/ball-detector-model-card.md).
 
-| Held-out result, `swing` minus `persistence` | Difference |
-| --- | ---: |
-| Precision | **+0.069 [+0.007, +0.142]** |
-| Recall | +0.019 [−0.070, +0.122] |
-| F1 | +0.046 [−0.020, +0.120] (not established) |
+### Development results
 
-It gives higher precision at equal recall and is far less sensitive to its
-parameters (69% of the grid is near-optimal on both clips, against 43% for the
-old rule), but its timing error roughly doubles (about 0.10 s versus 0.05 s)
-and the F1 gain is not statistically distinguishable from zero with two clips.
-Both clips are now development data, so this is not a generalization claim; the
-confirming evaluation is a fresh test split. Details, deviations from the
-protocol, and error analysis: [benchmark/EXPERIMENT_swing_detector.md](benchmark/EXPERIMENT_swing_detector.md).
+On the six development clips (89 contacts, two matches) the same comparison under a
+pre-registered leave-one-clip-out protocol gave an F1 gain of +0.046 [-0.020, +0.120]
+with a clear precision gain, which the test above then confirmed. The original v0.5
+benchmark (two clips, 54 events) showed F1 0.7500 to 0.8293 and 0.5806 to 0.6875 for
+the 25-frame and 18-frame persistence rules; those clips are now development data.
 
 ## Quick start
 
@@ -165,12 +174,14 @@ split between tutorial and project-specific work is also stated in
 
 ## Current limitations
 
-- The benchmark contains only two short 25 FPS clips and 54 annotated in-play
-  shots; results do not establish performance across tournaments, camera
-  angles, or video qualities.
+- The test split has 28 clips, 208 contacts and four matches, annotated by one
+  person in a first pass; results do not establish performance across other
+  tournaments, camera angles, or video qualities.
 - Both shot detectors rely on the vertical motion of the ball in image space,
-  and the ball model detects the ball in under half of the frames (46% on the
-  development clip), so gaps are interpolated.
+  and the ball model detects the ball in only 47.5% of the test frames (28-34% in
+  three of the four matches), so gaps are interpolated and event detection is
+  limited by ball detection. `swing_v1` times events about 0.04 s less accurately
+  than the persistence rule.
 - Court keypoints are estimated once, on the first frame, so the camera is
   assumed static. Broadcast cuts and zooms are not handled.
 - Player and ball speed estimates are derived from mini-court coordinates and
@@ -185,11 +196,13 @@ split between tutorial and project-specific work is also stated in
 
 ## Roadmap
 
-1. Expand the benchmark to more videos, camera setups, and frame rates, with
-   confidence intervals and ablations, using fresh held-out splits.
-2. Confirm the alternating-swing detector once on a fresh test split, recover
-   its timing accuracy, and add player proximity to reject shifted events.
-3. Evaluate and improve ball detection and tracking.
+1. Complete the second annotation pass on the test clips to measure the agreement
+   between two annotators, which bounds what any detector can reach.
+2. Recover the timing accuracy of `swing_v1` and add player proximity to reject
+   shifted events; both need a new fresh test split.
+3. Evaluate and improve ball detection and tracking: the ball is seen in under half
+   of the test frames and this limits every method. Compare detector architectures
+   and input resolution with the same protocol.
 4. Reconstruct trajectories in metres via the court homography and validate
    speeds against broadcast serve-speed readouts.
 5. Packaging: `pyproject.toml`, Docker, end-to-end test, and throughput numbers.

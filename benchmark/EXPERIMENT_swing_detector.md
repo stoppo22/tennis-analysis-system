@@ -213,3 +213,82 @@ negatives; the Wimbledon clip 3 and 4.
 3. Add player proximity (needs the player-detection cache and court keypoints
    exported like the ball detections) to reject shifted and duplicate events.
 4. Improve ball detection recall, the likely dominant error source.
+
+---
+
+# Confirmation on the held-out test split
+
+The development evidence above was inconclusive for F1 (+0.046 [-0.020, +0.120]) and
+the configuration `swing_v1` was frozen (ratio 0.40, smoothing 0.36 s) before the test
+clips existed. The test split was then built as described in `CLIP_SELECTION.md`
+(Amendments 2-5): random windows from four full matches, visual triage, annotation
+by hand, frozen annotations, and only afterwards the ball model run over the 28
+clips (`benchmark.export_model_detections`, confidence 0.15, image size 640, last box
+of the frame, as in the pipeline) and the methods applied
+(`benchmark.predict_from_detections`). The evaluation was run **once**:
+
+```bash
+python -m benchmark.run_benchmark --methods persistence_18 swing_v1 baseline \
+  --splits test --json benchmark/results/test_evaluation.json
+```
+
+No parameter, clip, annotation or threshold was changed after seeing the result.
+
+## Result (208 contacts, 28 clips, 4 matches)
+
+| Method | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| `baseline` (1.0 s) | 0.489 [0.374, 0.594] | 0.317 [0.236, 0.402] | 0.385 [0.293, 0.471] |
+| `persistence_18` | 0.458 [0.363, 0.548] | 0.466 [0.376, 0.555] | 0.462 [0.375, 0.544] |
+| `swing_v1` | 0.587 [0.500, 0.670] | 0.567 [0.484, 0.649] | 0.577 [0.499, 0.651] |
+
+`swing_v1` minus `persistence_18`: precision +0.130 [+0.058, +0.201], recall +0.101
+[+0.046, +0.160], F1 +0.115 [+0.063, +0.168]; P(better) = 1.000. By the criterion fixed
+in advance (F1 interval above zero with no large precision loss) the confirmation
+**succeeded**.
+
+## Consistency across matches
+
+F1 per match (counts pooled over the clips of a match):
+
+| Match | Clips | Contacts | `baseline` | `persistence_18` | `swing_v1` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Roland-Garros 2025 final (clay, 50 FPS) | 9 | 78 | 0.224 | 0.337 | 0.533 |
+| US Open 2026 final (hard, 59.94 FPS) | 7 | 39 | 0.594 | 0.675 | 0.686 |
+| Nitto ATP Finals 2023 (indoor, 25 FPS) | 6 | 53 | 0.405 | 0.526 | 0.592 |
+| Wimbledon 2026 (grass, 25 FPS) | 6 | 38 | 0.457 | 0.447 | 0.556 |
+
+`swing_v1` has the highest F1 in every match, but the margin over `persistence_18`
+varies from +0.011 (US Open) to +0.196 (Roland-Garros). It has a higher F1 than
+`persistence_18` on 21 of 28 clips, lower on 5 and equal on 2. These breakdowns are
+descriptive; they were computed after the single evaluation and were not used to
+change anything.
+
+## Timing
+
+Mean absolute timing error of matched events over the whole split: 0.071 s
+(`baseline`), 0.077 s (`persistence_18`), 0.117 s (`swing_v1`). The trade-off seen on
+development data (smoothing rounds the extrema) is confirmed: `swing_v1` detects more
+events correctly but places them less precisely.
+
+## Ball detection on the test clips
+
+The ball model produced a detection in 47.5% of the 15,760 test frames: 66.4% in
+Roland-Garros, 33.6% in Wimbledon, 27.9% in the ATP Finals and 27.7% in the US Open
+(development clips: 46% and 62%). Missing positions are interpolated before event
+detection, so every method is limited by this. This study did not test why detection
+is lower in three matches (candidates are image size, broadcast, lighting and the
+small training set); the model card lists these as known limitations.
+
+## What is and is not claimed
+
+- Claimed: on this test split, `swing_v1` finds more of the annotated contacts and
+  raises fewer false alarms than the persistence rule applied to the same ball
+  detections, with intervals that exclude zero.
+- Not claimed: that F1 0.58 is good in absolute terms, that the result holds for other
+  broadcasts, camera heights or sports, that the gain survives a better ball
+  detector, or that `swing_v1` is better where timing matters.
+- Caveats: annotations are from a single person in a first pass; four matches give
+  clustered data and two of them share a player; clips were chosen by one visual
+  review; the bootstrap treats 10-second blocks as exchangeable. The second
+  annotation pass will bound the annotation noise.
