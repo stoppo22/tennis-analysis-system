@@ -7,6 +7,7 @@ import numpy as np
 from tennis_analysis.pipeline import (
     _build_detection_cache_path,
     _draw_frame_overlays,
+    _filter_ball_detections,
     _require_files,
     analyze_video,
 )
@@ -64,6 +65,25 @@ class DrawFrameOverlaysTest(unittest.TestCase):
 
         for frame in frames:
             self.assertTrue(frame[18:62, 20:250].any())
+
+
+class FilterBallDetectionsTest(unittest.TestCase):
+    def static_detections(self):
+        return [{1: [100.0, 100.0, 112.0, 112.0]} for _ in range(60)]
+
+    def test_nothing_changes_when_the_filter_is_off(self):
+        detections = self.static_detections()
+
+        filtered, removed = _filter_ball_detections(detections, 25.0, 1920, False)
+
+        self.assertIs(filtered, detections)
+        self.assertEqual(removed, 0)
+
+    def test_a_fixed_mark_is_removed_when_the_filter_is_on(self):
+        filtered, removed = _filter_ball_detections(self.static_detections(), 25.0, 1920, True)
+
+        self.assertEqual(removed, 60)
+        self.assertTrue(all(entry == {} for entry in filtered))
 
 
 class AnalyzeVideoValidationTest(unittest.TestCase):
