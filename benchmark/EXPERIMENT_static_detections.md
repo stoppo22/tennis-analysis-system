@@ -69,3 +69,61 @@ raises event F1 for this ball model on these broadcasts. It would not show that 
 ball model itself is better, nor that the result holds on other surfaces, broadcasts or
 detectors, nor would it say how many of the removed detections were wrong, since the
 ball has not been annotated.
+
+---
+
+# Results
+
+## Development (decision step)
+
+Six development clips, 89 contacts. Static detections removed: 0 in the two original
+clips and in Australian Open w2_rally_05, 176 in Australian Open w3_rally_05, 58 in
+Rome w2_rally_01 and 168 in Rome w3_rally_03.
+
+| Method | F1 without | F1 with | Paired difference |
+| --- | ---: | ---: | ---: |
+| `swing_v1` | 0.698 [0.554, 0.821] | 0.759 [0.656, 0.849] | +0.060 [+0.000, +0.151] |
+| `persistence_18` | 0.621 [0.450, 0.763] | 0.696 [0.552, 0.812] | +0.075 [+0.014, +0.165] |
+
+The decision rule was met (point estimates above zero for both methods, lower bound
+for `swing_v1` above -0.05), so the filter went to the confirmation step.
+
+## Confirmation on the test split (second use of the test)
+
+28 clips, 208 contacts, 4 matches, same ball detections and methods. Static
+detections removed: Roland-Garros 2,289 (9 clips), ATP Finals 259 (6), US Open 213
+(7), Wimbledon 179 (6). The filter was applied once.
+
+| Method | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| `swing_v1` | 0.587 [0.500, 0.670] | 0.567 [0.484, 0.649] | 0.577 [0.499, 0.651] |
+| `swing_v1` with filter | 0.668 [0.590, 0.743] | 0.649 [0.570, 0.723] | 0.659 [0.586, 0.724] |
+| `persistence_18` | 0.458 [0.363, 0.548] | 0.466 [0.376, 0.555] | 0.462 [0.375, 0.544] |
+| `persistence_18` with filter | 0.586 [0.502, 0.660] | 0.591 [0.516, 0.664] | 0.589 [0.516, 0.655] |
+
+Paired differences (with minus without filter): `swing_v1` F1 **+0.082 [+0.020,
++0.150]** (precision +0.081 [+0.018, +0.150], recall +0.082 [+0.011, +0.158]);
+`persistence_18` F1 **+0.127 [+0.061, +0.202]** (precision +0.128, recall +0.125). The
+intervals exclude zero for both methods.
+
+The filter helps the weaker method more, so the gap between the two shrinks: with the
+filter, `swing_v1` has F1 0.659 and `persistence_18` 0.589 (point estimates; the paired
+interval of this gap was not part of the protocol and was not computed). The earlier
+conclusion that `swing_v1` beats `persistence_18` is not weakened by the filter, but
+a smaller part of that difference now comes from the rule and a larger part had come
+from how each rule copes with false detections.
+
+## What is and is not claimed
+
+- Claimed: removing detections that stay in one place for about a second raises event
+  F1 for both rules on both development and test clips, with the test interval
+  excluding zero.
+- The interval of the test confirmation is **not independent** of the earlier test
+  evaluation: the same clips and annotations were used twice, although no parameter
+  was tuned on them.
+- Not shown: how many of the removed detections were wrong (the ball has not been
+  annotated; three enlarged samples showed marks on the clay), whether a real ball is
+  ever removed, or that the result holds for other ball models, surfaces or
+  broadcasts.
+- Roland-Garros contributes most of the removed detections (2,289 of 2,940); the other
+  three matches changed much less.
