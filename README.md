@@ -77,6 +77,19 @@ evaluation design is summarised in
 [docs/evaluation-methodology.md](docs/evaluation-methodology.md), and the ball
 detector in its [model card](docs/ball-detector-model-card.md).
 
+### Removing static detections (second look at the test)
+
+The ball model often reports a mark on the clay as the ball (in six of nine
+Roland-Garros clips one 16-pixel spot holds 22-63% of all detections). Dropping
+detections that stay in the same place for about a second, a rule fixed before
+evaluation with no tuned parameters, raised F1 on the test split from 0.577 to 0.659
+for `swing_v1` (paired difference +0.082 [+0.020, +0.150]) and from 0.462 to 0.589 for
+`persistence_18` (+0.127 [+0.061, +0.202]). The decision to try it was made on
+development clips, and this test result is a **second use** of a test that was
+already evaluated once, so it is not independent of the first. The filter is available
+as `--suppress-static` in `benchmark.predict_from_detections` and is not yet part of
+the pipeline. Details: [benchmark/EXPERIMENT_static_detections.md](benchmark/EXPERIMENT_static_detections.md).
+
 ### Development results
 
 On the six development clips (89 contacts, two matches) the same comparison under a
