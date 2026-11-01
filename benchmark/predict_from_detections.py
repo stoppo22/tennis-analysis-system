@@ -8,6 +8,10 @@ interpolated and every requested method is run with the clip's frame rate, writi
     python -m benchmark.predict_from_detections --splits test \
         --detections runs/yolo11l/detections
 
+With ``--suppress-static`` the detections that stay in the same place for about a
+second (marks on the court mistaken for the ball) are removed first, and the files
+are named ``<clip>_<method>_nostatic.csv``.
+
 Methods are fixed here so that a run is reproducible:
 
 - ``baseline``: persistence rule, 1.0 s (the original behaviour at 25 FPS);
@@ -21,6 +25,7 @@ from pathlib import Path
 
 from benchmark.annotate_shots import save_annotations
 from benchmark.detections import load_detections_csv
+from tennis_analysis.utils.detection_filters import suppress_static_detections
 from tennis_analysis.utils.shot_detection_utils import (
     DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,
@@ -59,6 +64,16 @@ def clips_with_fps(sources_path, splits):
         }
 
 
+def clip_widths(sources_path, splits):
+    """Frame width in pixels of each clip, from the ``resolution`` column."""
+    with Path(sources_path).open(newline="", encoding="utf-8") as csv_file:
+        return {
+            row["clip"]: int(row["resolution"].split("x")[0])
+            for row in csv.DictReader(csv_file)
+            if row["split"] in splits and row.get("resolution", "").strip()
+        }
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--splits", nargs="+", default=["test"])
@@ -66,9 +81,16 @@ def main(argv=None):
     parser.add_argument("--detections", required=True, help="Directory of <clip>.csv detections.")
     parser.add_argument("--sources", default=BENCHMARK_DIRECTORY / "sources.csv")
     parser.add_argument("--output-dir", default=BENCHMARK_DIRECTORY / "predictions")
+    parser.add_argument(
+        "--suppress-static",
+        action="store_true",
+        help="Remove detections that stay in the same place for about a second first.",
+    )
     args = parser.parse_args(argv)
 
     clips = clips_with_fps(args.sources, set(args.splits))
+    widths = clip_widths(args.sources, set(args.splits))
+    suffix = "_nostatic" if args.suppress_static else ""
     written = 0
     for clip, fps in sorted(clips.items()):
         path = Path(args.detections) / f"{clip}.csv"
@@ -76,12 +98,17 @@ def main(argv=None):
             print(f"missing detections, skipped: {clip}")
             continue
         detections = load_detections_csv(path)
+        removed = 0
+        if args.suppress_static:
+            detections, removed = suppress_static_detections(detections, fps, widths[clip])
+        counts = {}
         for method in args.methods:
             frames = predict_clip(detections, fps, method)
-            save_annotations(Path(args.output_dir) / f"{clip}_{method}.csv", frames, fps)
+            save_annotations(Path(args.output_dir) / f"{clip}_{method}{suffix}.csv", frames, fps)
+            counts[method] = len(frames)
             written += 1
-        print(f"{clip}: " + ", ".join(
-            f"{m} {len(predict_clip(detections, fps, m))}" for m in args.methods))
+        extra = f" (static detections removed: {removed})" if args.suppress_static else ""
+        print(f"{clip}: " + ", ".join(f"{m} {n}" for m, n in counts.items()) + extra)
     print(f"\n{written} prediction files written to {args.output_dir}")
 
 

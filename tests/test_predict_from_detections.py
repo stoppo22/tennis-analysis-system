@@ -33,14 +33,14 @@ class PredictFromDetectionsTest(unittest.TestCase):
         self.sources = self.root / "sources.csv"
 
         with self.sources.open("w", newline="", encoding="utf-8") as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=["clip", "split", "fps"])
+            writer = csv.DictWriter(csv_file, fieldnames=["clip", "split", "fps", "resolution"])
             writer.writeheader()
             writer.writerows(
                 [
-                    {"clip": "rally", "split": "test", "fps": "25"},
-                    {"clip": "empty", "split": "test", "fps": "50"},
-                    {"clip": "other", "split": "development", "fps": "25"},
-                    {"clip": "absent", "split": "test", "fps": "25"},
+                    {"clip": "rally", "split": "test", "fps": "25", "resolution": "1920x1080"},
+                    {"clip": "empty", "split": "test", "fps": "50", "resolution": "1920x1080"},
+                    {"clip": "other", "split": "development", "fps": "25", "resolution": "1280x720"},
+                    {"clip": "absent", "split": "test", "fps": "25", "resolution": "1920x1080"},
                 ]
             )
 
@@ -78,6 +78,25 @@ class PredictFromDetectionsTest(unittest.TestCase):
         self.assertEqual(written, expected)
         self.assertGreaterEqual(len(load_event_times(self.output / "rally_swing_v1.csv")), 3)
         self.assertEqual(load_event_times(self.output / "empty_swing_v1.csv"), [])
+
+    def test_suppress_static_removes_a_fixed_mark_and_renames_the_files(self):
+        # a fixed mark reported in every frame, plus a real swinging ball
+        ball = zigzag_detections([600, 200, 600, 200, 600, 200, 600], 30)
+        for entry in ball:
+            entry[1] = [900.0, 700.0, 912.0, 712.0]  # the mark overrides the ball
+        save_detections_csv(ball, self.detections / "rally.csv")
+
+        main(
+            [
+                "--splits", "test", "--methods", "swing_v1", "--suppress-static",
+                "--detections", str(self.detections),
+                "--sources", str(self.sources),
+                "--output-dir", str(self.output),
+            ]
+        )
+
+        self.assertEqual(load_event_times(self.output / "rally_swing_v1_nostatic.csv"), [])
+        self.assertFalse((self.output / "rally_swing_v1.csv").exists())
 
     def test_predictions_are_in_seconds_of_the_clip_frame_rate(self):
         main(
