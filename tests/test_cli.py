@@ -50,6 +50,10 @@ class CliArgumentsTest(unittest.TestCase):
         self.assertEqual(args.ball_model, "weights/ball.pt")
         self.assertEqual(args.cache_dir, "/tmp/cache")
 
+    def test_static_suppression_is_off_by_default_and_can_be_enabled(self):
+        self.assertFalse(parse_args([]).suppress_static)
+        self.assertTrue(parse_args(["--suppress-static"]).suppress_static)
+
     def test_unknown_shot_detector_is_rejected(self):
         with self.assertRaises(SystemExit):
             parse_args(["--shot-detector", "magic"])

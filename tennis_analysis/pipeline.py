@@ -13,6 +13,7 @@ from tennis_analysis.utils import (
     save_player_stats_csv,
     save_video,
 )
+from tennis_analysis.utils.detection_filters import suppress_static_detections
 from tennis_analysis.utils.shot_detectors import (
     DEFAULT_SHOT_DETECTOR,
     detect_shots,
@@ -72,6 +73,17 @@ def _require_files(required_files):
             f"- {missing_file}" for missing_file in missing_files
         )
         raise FileNotFoundError(f"Missing required files:\n{formatted_missing_files}")
+
+
+def _filter_ball_detections(ball_detections, fps, frame_width, suppress_static):
+    """Optionally drop detections that stay in one place (marks mistaken for the ball).
+
+    Returns ``(detections, removed_count)``; with ``suppress_static`` false the
+    detections are returned unchanged.
+    """
+    if not suppress_static:
+        return ball_detections, 0
+    return suppress_static_detections(ball_detections, fps, frame_width)
 
 
 def _draw_frame_overlays(frames, fps, shot_frames):
@@ -142,11 +154,14 @@ def analyze_video(
     court_model_path=DEFAULT_COURT_MODEL_PATH,
     cache_directory=DEFAULT_CACHE_DIRECTORY,
     shot_detector=DEFAULT_SHOT_DETECTOR,
+    suppress_static=False,
 ):
     """Analyze a video and return paths plus basic processing metadata.
 
     ``shot_detector`` selects the shot-event method (see
-    ``tennis_analysis.utils.shot_detectors``).
+    ``tennis_analysis.utils.shot_detectors``). With ``suppress_static`` the ball
+    detections that stay in the same place for about a second are removed before the
+    gaps are interpolated; they are marks on the court mistaken for the ball.
     """
     # Heavy dependencies are imported here so that importing this module, running
     # ``--help`` and the unit tests do not require PyTorch or Ultralytics.
@@ -208,6 +223,9 @@ def analyze_video(
         video_frames,
         read_from_stub=ball_stub_path.exists(),
         stub_path=ball_stub_path,
+    )
+    ball_detections, static_removed = _filter_ball_detections(
+        ball_detections, fps, video_frames[0].shape[1], suppress_static
     )
     ball_detections = ball_tracker.interpolate_ball_positions(ball_detections)
 
@@ -276,4 +294,5 @@ def analyze_video(
         "duration_seconds": len(video_frames) / fps,
         "detected_shot_frames": [int(frame) for frame in ball_shot_frames],
         "shot_detector": shot_detector,
+        "static_detections_removed": static_removed,
     }

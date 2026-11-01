@@ -47,6 +47,16 @@ def parse_args(argv=None):
         ),
     )
     parser.add_argument(
+        "--suppress-static",
+        action="store_true",
+        help=(
+            "Remove ball detections that stay in the same place for about a second "
+            "(marks on the court mistaken for the ball) before the gaps are "
+            "interpolated. Raised F1 in the evaluation; see "
+            "benchmark/EXPERIMENT_static_detections.md."
+        ),
+    )
+    parser.add_argument(
         "--player-model",
         default=DEFAULT_PLAYER_MODEL_PATH,
         help="Player detection weights (default: %(default)s).",
@@ -81,6 +91,7 @@ def main(argv=None):
         court_model_path=args.court_model,
         cache_directory=args.cache_dir,
         shot_detector=args.shot_detector,
+        suppress_static=args.suppress_static,
     )
 
     print(f"Annotated video: {result['output_video_path']}")
@@ -89,6 +100,8 @@ def main(argv=None):
         f"Shots detected ({result['shot_detector']}): "
         f"{len(result['detected_shot_frames'])}"
     )
+    if args.suppress_static:
+        print(f"Static ball detections removed: {result['static_detections_removed']}")
 
 
 if __name__ == "__main__":
