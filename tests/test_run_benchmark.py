@@ -103,6 +103,14 @@ class RunBenchmarkTest(unittest.TestCase):
         self.assertEqual(count_pending_clips(path), 1)
         self.assertEqual(count_pending_clips(path, splits=["development"]), 0)
 
+    def test_clips_can_be_selected_by_name(self):
+        self.assertEqual(
+            load_clips(self.root / "sources.csv", only_containing=["test_y", "nope"]),
+            [("test_y_rally_01", "test")],
+        )
+        with self.assertRaises(ValueError):
+            load_clips(self.root / "sources.csv", only_containing=["nothing"])
+
     def test_zero_block_length_means_whole_clip(self):
         self.assertIsNone(self.args("--block-seconds", "0").block_seconds)
 
