@@ -98,6 +98,19 @@ class PredictFromDetectionsTest(unittest.TestCase):
         self.assertEqual(load_event_times(self.output / "rally_swing_v1_nostatic.csv"), [])
         self.assertFalse((self.output / "rally_swing_v1.csv").exists())
 
+    def test_tag_is_appended_to_the_file_names(self):
+        main(
+            [
+                "--splits", "test", "--methods", "swing_v1", "--suppress-static",
+                "--tag", "conf",
+                "--detections", str(self.detections),
+                "--sources", str(self.sources),
+                "--output-dir", str(self.output),
+            ]
+        )
+
+        self.assertTrue((self.output / "rally_swing_v1_nostatic_conf.csv").exists())
+
     def test_predictions_are_in_seconds_of_the_clip_frame_rate(self):
         main(
             [

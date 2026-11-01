@@ -31,7 +31,7 @@ BENCHMARK_DIRECTORY = Path(__file__).resolve().parent
 RALLY_SUFFIX = re.compile(r"_rally_\d+$")
 
 
-def load_clips(sources_path, splits=None):
+def load_clips(sources_path, splits=None, only_containing=None):
     """Return ``[(clip, split)]`` from the sources manifest."""
     with Path(sources_path).open(newline="", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
@@ -48,6 +48,12 @@ def load_clips(sources_path, splits=None):
 
     if splits:
         clips = [(clip, split) for clip, split in clips if split in splits]
+    if only_containing:
+        clips = [
+            (clip, split)
+            for clip, split in clips
+            if any(text in clip for text in only_containing)
+        ]
     if not clips:
         raise ValueError("No clips match the requested splits.")
     return clips
@@ -123,7 +129,7 @@ def format_interval(summary):
 
 
 def build_report(args):
-    clips = load_clips(args.sources, args.splits)
+    clips = load_clips(args.sources, args.splits, args.only_containing)
     report = {
         "clips": [clip for clip, _ in clips],
         "tolerance_seconds": args.tolerance,
@@ -236,6 +242,11 @@ def parse_args(argv=None):
         help="Method names; with two or more, the second is compared to the first.",
     )
     parser.add_argument("--splits", nargs="+", help="Only use these splits.")
+    parser.add_argument(
+        "--only-containing",
+        nargs="+",
+        help="Only use clips whose name contains any of these texts (for example '_w2_').",
+    )
     parser.add_argument("--sources", default=BENCHMARK_DIRECTORY / "sources.csv")
     parser.add_argument("--annotations", default=BENCHMARK_DIRECTORY / "annotations")
     parser.add_argument("--predictions", default=BENCHMARK_DIRECTORY / "predictions")

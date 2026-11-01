@@ -82,6 +82,11 @@ def main(argv=None):
     parser.add_argument("--sources", default=BENCHMARK_DIRECTORY / "sources.csv")
     parser.add_argument("--output-dir", default=BENCHMARK_DIRECTORY / "predictions")
     parser.add_argument(
+        "--tag",
+        default="",
+        help="Extra label appended to the method name in the output file names.",
+    )
+    parser.add_argument(
         "--suppress-static",
         action="store_true",
         help="Remove detections that stay in the same place for about a second first.",
@@ -90,7 +95,7 @@ def main(argv=None):
 
     clips = clips_with_fps(args.sources, set(args.splits))
     widths = clip_widths(args.sources, set(args.splits))
-    suffix = "_nostatic" if args.suppress_static else ""
+    suffix = ("_nostatic" if args.suppress_static else "") + (f"_{args.tag}" if args.tag else "")
     written = 0
     for clip, fps in sorted(clips.items()):
         path = Path(args.detections) / f"{clip}.csv"
