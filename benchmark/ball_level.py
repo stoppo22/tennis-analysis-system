@@ -29,6 +29,7 @@ from benchmark.tracknet import (
 )
 
 DEFAULT_CONFIDENCE = 0.15
+PREDICT_CHUNK = 16  # images per call: a whole list at once can exhaust memory
 
 
 def load_manifest(dataset_dir, split):
@@ -116,13 +117,14 @@ def evaluate(weights, dataset_dir, split, imgsz, confidence=DEFAULT_CONFIDENCE, 
 
     detections = []
     started = time.time()
-    options = {"conf": confidence, "imgsz": imgsz, "verbose": False, "stream": True}
+    options = {"conf": confidence, "imgsz": imgsz, "verbose": False}
     if device is not None:
         options["device"] = device
-    for result in model.predict(paths, **options):
-        boxes = result.boxes.xyxy.tolist()
-        scores = result.boxes.conf.tolist()
-        detections.append(best_detection(boxes, scores))
+    for start in range(0, len(paths), PREDICT_CHUNK):
+        for result in model.predict(paths[start : start + PREDICT_CHUNK], **options):
+            boxes = result.boxes.xyxy.tolist()
+            scores = result.boxes.conf.tolist()
+            detections.append(best_detection(boxes, scores))
     seconds = time.time() - started
 
     tolerance = TOLERANCE_FRACTION * IMAGE_SIZE[0]

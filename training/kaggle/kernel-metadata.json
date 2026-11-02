@@ -1,0 +1,16 @@
+{
+  "id": "stoppo22/tennis-ball-detector-training",
+  "title": "tennis-ball-detector-training",
+  "code_file": "launcher.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["sofuskonglevoll/tracknet-tennis"],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
