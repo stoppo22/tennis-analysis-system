@@ -1,0 +1,197 @@
+{
+  "clips": [
+    "development_australian_open_2025_djokovic_alcaraz_w2_rally_05",
+    "development_australian_open_2025_djokovic_alcaraz_w3_rally_05",
+    "development_rome_2025_final_gauff_paolini_w2_rally_01",
+    "development_rome_2025_final_gauff_paolini_w3_rally_03"
+  ],
+  "tolerance_seconds": 0.25,
+  "block_seconds": 10.0,
+  "resamples": 10000,
+  "confidence": 0.95,
+  "seed": 0,
+  "pending_clips": 0,
+  "methods": {
+    "swing_v1_nostatic_imgsz640": {
+      "per_clip": {
+        "development_australian_open_2025_djokovic_alcaraz_w2_rally_05": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 6,
+          "predicted_events": 7,
+          "true_positives": 3,
+          "false_positives": 4,
+          "false_negatives": 3,
+          "precision": 0.42857142857142855,
+          "recall": 0.5,
+          "f1": 0.4615384615384615,
+          "mean_absolute_timing_error": 0.14666666666666636,
+          "split": "development"
+        },
+        "development_australian_open_2025_djokovic_alcaraz_w3_rally_05": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 8,
+          "predicted_events": 7,
+          "true_positives": 5,
+          "false_positives": 2,
+          "false_negatives": 3,
+          "precision": 0.7142857142857143,
+          "recall": 0.625,
+          "f1": 0.6666666666666666,
+          "mean_absolute_timing_error": 0.10400000000000001,
+          "split": "development"
+        },
+        "development_rome_2025_final_gauff_paolini_w2_rally_01": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 15,
+          "predicted_events": 10,
+          "true_positives": 8,
+          "false_positives": 2,
+          "false_negatives": 7,
+          "precision": 0.8,
+          "recall": 0.5333333333333333,
+          "f1": 0.64,
+          "mean_absolute_timing_error": 0.10426975000000012,
+          "split": "development"
+        },
+        "development_rome_2025_final_gauff_paolini_w3_rally_03": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 6,
+          "predicted_events": 5,
+          "true_positives": 4,
+          "false_positives": 1,
+          "false_negatives": 2,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272,
+          "mean_absolute_timing_error": 0.1564009999999998,
+          "split": "development"
+        }
+      },
+      "overall": {
+        "units": 5,
+        "precision": {
+          "value": 0.6896551724137931,
+          "ci_low": 0.5217391304347826,
+          "ci_high": 0.8148148148148148
+        },
+        "recall": {
+          "value": 0.5714285714285714,
+          "ci_low": 0.42424242424242425,
+          "ci_high": 0.6944444444444444
+        },
+        "f1": {
+          "value": 0.625,
+          "ci_low": 0.49101633393829586,
+          "ci_high": 0.746268656716418
+        }
+      },
+      "events": {
+        "ground_truth": 35,
+        "true_positives": 20,
+        "false_positives": 9,
+        "false_negatives": 15
+      }
+    },
+    "swing_v1_nostatic_nojump_imgsz640": {
+      "per_clip": {
+        "development_australian_open_2025_djokovic_alcaraz_w2_rally_05": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 6,
+          "predicted_events": 7,
+          "true_positives": 3,
+          "false_positives": 4,
+          "false_negatives": 3,
+          "precision": 0.42857142857142855,
+          "recall": 0.5,
+          "f1": 0.4615384615384615,
+          "mean_absolute_timing_error": 0.17333333333333334,
+          "split": "development"
+        },
+        "development_australian_open_2025_djokovic_alcaraz_w3_rally_05": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 8,
+          "predicted_events": 7,
+          "true_positives": 5,
+          "false_positives": 2,
+          "false_negatives": 3,
+          "precision": 0.7142857142857143,
+          "recall": 0.625,
+          "f1": 0.6666666666666666,
+          "mean_absolute_timing_error": 0.10400000000000001,
+          "split": "development"
+        },
+        "development_rome_2025_final_gauff_paolini_w2_rally_01": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 15,
+          "predicted_events": 10,
+          "true_positives": 8,
+          "false_positives": 2,
+          "false_negatives": 7,
+          "precision": 0.8,
+          "recall": 0.5333333333333333,
+          "f1": 0.64,
+          "mean_absolute_timing_error": 0.10426975000000012,
+          "split": "development"
+        },
+        "development_rome_2025_final_gauff_paolini_w3_rally_03": {
+          "tolerance_seconds": 0.25,
+          "ground_truth_events": 6,
+          "predicted_events": 5,
+          "true_positives": 4,
+          "false_positives": 1,
+          "false_negatives": 2,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272,
+          "mean_absolute_timing_error": 0.1564009999999998,
+          "split": "development"
+        }
+      },
+      "overall": {
+        "units": 5,
+        "precision": {
+          "value": 0.6896551724137931,
+          "ci_low": 0.5217391304347826,
+          "ci_high": 0.8148148148148148
+        },
+        "recall": {
+          "value": 0.5714285714285714,
+          "ci_low": 0.42424242424242425,
+          "ci_high": 0.6944444444444444
+        },
+        "f1": {
+          "value": 0.625,
+          "ci_low": 0.49101633393829586,
+          "ci_high": 0.746268656716418
+        }
+      },
+      "events": {
+        "ground_truth": 35,
+        "true_positives": 20,
+        "false_positives": 9,
+        "false_negatives": 15
+      }
+    }
+  },
+  "comparison": {
+    "baseline": "swing_v1_nostatic_imgsz640",
+    "candidate": "swing_v1_nostatic_nojump_imgsz640",
+    "units": 5,
+    "precision": {
+      "difference": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0
+    },
+    "recall": {
+      "difference": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0
+    },
+    "f1": {
+      "difference": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0
+    },
+    "probability_b_better": 0.0
+  }
+}

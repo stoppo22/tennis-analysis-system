@@ -68,3 +68,42 @@ A positive outcome would say that, on four clips, removing impossible jumps did 
 and slightly helped. It would not establish an improvement, and with only a handful of
 detections expected to be removed it may well show no difference at all, which is also a
 valid result.
+
+---
+
+# Results
+
+Four development clips, 35 contacts, static filter applied in both arms.
+
+| Image size | Method | F1 without the jump filter | F1 with the jump filter | Paired difference |
+| ---: | --- | ---: | ---: | ---: |
+| 960 | `swing_v1` | 0.698 | 0.698 | +0.000 [+0.000, +0.000] |
+| 960 | `persistence_18` | 0.684 | 0.701 | +0.018 [+0.000, +0.041] |
+| 640 (secondary) | `swing_v1` | 0.625 | 0.625 | +0.000 [+0.000, +0.000] |
+| 640 (secondary) | `persistence_18` | 0.537 | 0.571 | +0.034 [+0.000, +0.142] |
+
+## Decision rule
+
+The rule required a difference of at least +0.01 for **both** methods at 960 px. For
+`swing_v1` it is exactly zero, so the rule is **not met**. The experiment is negative
+for the proposed use: the jump filter is not added to the pipeline and is not carried
+into the final confirmation.
+
+## Label-free diagnostics
+
+The filter removes very few detections: 12 at 960 px (9 of them in one Australian Open
+clip) and 4 at 640 px. Consecutive pairs moving faster than one frame width per second
+go from 10.6% to 6.1% at 960 px and from 7.6% to 5.0% at 640 px (these shares are
+measured after the static filter, so they are lower than the 15-23% before it in the
+input-resolution experiment).
+
+## Reading
+
+The filter does what it is designed to do, removing isolated impossible positions, but
+there are too few of them to change what `swing_v1` finds: its smoothed swing signal
+already ignores a single stray detection. `persistence_18` gains one or two events
+(two fewer false positives at 960 px, two more true positives at 640 px), consistent
+with a small real effect for the simpler detector, but that is not the detector in use.
+With 35 contacts a difference of a few events cannot be distinguished from noise. The
+function stays in `detection_filters.py` and in `benchmark.predict_from_detections`
+(`--suppress-jumps`) so that the result can be reproduced; the pipeline is unchanged.
