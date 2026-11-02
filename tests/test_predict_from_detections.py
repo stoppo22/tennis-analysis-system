@@ -98,6 +98,19 @@ class PredictFromDetectionsTest(unittest.TestCase):
         self.assertEqual(load_event_times(self.output / "rally_swing_v1_nostatic.csv"), [])
         self.assertFalse((self.output / "rally_swing_v1.csv").exists())
 
+    def test_suppress_jumps_renames_the_files_and_keeps_a_clean_trajectory(self):
+        main(
+            [
+                "--splits", "test", "--methods", "swing_v1", "--suppress-jumps",
+                "--detections", str(self.detections),
+                "--sources", str(self.sources),
+                "--output-dir", str(self.output),
+            ]
+        )
+
+        self.assertGreaterEqual(len(load_event_times(self.output / "rally_swing_v1_nojump.csv")), 3)
+        self.assertFalse((self.output / "rally_swing_v1.csv").exists())
+
     def test_tag_is_appended_to_the_file_names(self):
         main(
             [
