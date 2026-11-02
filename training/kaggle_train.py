@@ -113,6 +113,8 @@ def main(argv=None):
     if not (dataset / "data.yaml").is_file():
         totals = prepare_dataset(args.source, dataset, BOX_SIDE)
         print("dataset:", totals, flush=True)
+        if not any(counts["positives"] for counts in totals.values()):
+            raise SystemExit(f"No TrackNet frames found under {args.source}.")
 
     summary = {"commit": current_commit(), "config": config, "models": {}}
     eval_options = {"limit": config.get("eval_limit"), "device": config.get("device", 0)}
