@@ -1,10 +1,10 @@
 {
-  "stage": "pilot",
-  "models": ["yolo26n.pt", "yolo26x.pt"],
-  "epochs": 1,
+  "stage": "sweep-1",
+  "models": ["yolo26n.pt", "yolo26s.pt", "yolo26m.pt", "yolo11l.pt"],
+  "epochs": 20,
   "imgsz": 960,
   "batch": 8,
   "seed": 0,
   "reference": true,
-  "eval_limit": 200
+  "eval_limit": null
 }

@@ -1,0 +1,33 @@
+{
+  "commit": "ac8c9048d125b954828c0344d10c6852e8ba61bc",
+  "config": {
+    "stage": "pilot",
+    "models": [
+      "yolo26n.pt",
+      "yolo26x.pt"
+    ],
+    "epochs": 1,
+    "imgsz": 960,
+    "batch": 8,
+    "seed": 0,
+    "reference": true,
+    "eval_limit": 200
+  },
+  "models": {
+    "reference": {
+      "report": "/kaggle/working/reports/reference.json"
+    },
+    "yolo26n_seed0": {
+      "report": "/kaggle/working/reports/yolo26n_seed0.json",
+      "train_seconds": 124.79737281799316,
+      "peak_gpu_gb": 2.781722112,
+      "parameters_million": 2.50419
+    },
+    "yolo26x_seed0": {
+      "report": "/kaggle/working/reports/yolo26x_seed0.json",
+      "train_seconds": 644.167573928833,
+      "peak_gpu_gb": 15.054618624,
+      "parameters_million": 58.810878
+    }
+  }
+}

@@ -131,3 +131,35 @@ would not establish an improvement on the shot events of other matches; that is 
 the final confirmation on fresh matches. TrackNet labels have their own convention (the
 latest position of the trace) and its videos are 720p from 2014-2017, so ball-level
 scores are not comparable with those of other benchmarks.
+
+---
+
+# Amendments
+
+## Amendment 1: epochs and memory (after the pilot, before any result of the sweep)
+
+A pilot ran one epoch of YOLO26n and YOLO26x on the Kaggle GPU (T4, image size 960, batch
+8) to measure time and memory. It showed, per epoch including validation:
+
+| Model | Time per epoch | Peak GPU memory |
+| --- | ---: | ---: |
+| YOLO26n | 125 s | 2.8 GB |
+| YOLO26x | 644 s | 15.05 GB |
+
+Extrapolating to the other sizes, 30 epochs for six models would need about 19 GPU hours,
+too many for the weekly quota once the repetitions with other seeds are added. As foreseen
+above, the recipe is reduced **for every arm alike**:
+
+- epochs: 30 -> **20** (about 7,100 iterations of batch 8 on 2,855 training images, more
+  iterations than the 100 epochs of batch 16 on 578 images used for the published model);
+- batch size stays 8 and the image size stays 960.
+
+The validation scores of the pilot (one epoch) were looked at but they carry no
+information on the final quality, and played no part in this change.
+
+YOLO26x used 15.05 GB, practically all the memory of the T4. If it fails with an out of
+memory error in the sweep, it is reported as not fitting a 16 GB GPU with this recipe and
+is left out of the selection, without changing the recipe for it.
+
+The sweep is run in two sessions of about six hours each: YOLO26n, s, m and the YOLO11l
+control first, then YOLO26l and YOLO26x.
