@@ -10,7 +10,9 @@ interpolated and every requested method is run with the clip's frame rate, writi
 
 With ``--suppress-static`` the detections that stay in the same place for about a
 second (marks on the court mistaken for the ball) are removed first, and the files
-are named ``<clip>_<method>_nostatic.csv``.
+are named ``<clip>_<method>_nostatic.csv``. With ``--suppress-jumps`` the detections
+that no nearby detection can reach at a plausible ball speed are removed after that,
+and ``_nojump`` is added to the names.
 
 Methods are fixed here so that a run is reproducible:
 
@@ -25,7 +27,10 @@ from pathlib import Path
 
 from benchmark.annotate_shots import save_annotations
 from benchmark.detections import load_detections_csv
-from tennis_analysis.utils.detection_filters import suppress_static_detections
+from tennis_analysis.utils.detection_filters import (
+    suppress_implausible_jumps,
+    suppress_static_detections,
+)
 from tennis_analysis.utils.shot_detection_utils import (
     DEFAULT_SMOOTHING_SECONDS,
     detect_shot_frames,
@@ -91,11 +96,20 @@ def main(argv=None):
         action="store_true",
         help="Remove detections that stay in the same place for about a second first.",
     )
+    parser.add_argument(
+        "--suppress-jumps",
+        action="store_true",
+        help="Remove isolated detections that need an impossible speed to be reached.",
+    )
     args = parser.parse_args(argv)
 
     clips = clips_with_fps(args.sources, set(args.splits))
     widths = clip_widths(args.sources, set(args.splits))
-    suffix = ("_nostatic" if args.suppress_static else "") + (f"_{args.tag}" if args.tag else "")
+    suffix = (
+        ("_nostatic" if args.suppress_static else "")
+        + ("_nojump" if args.suppress_jumps else "")
+        + (f"_{args.tag}" if args.tag else "")
+    )
     written = 0
     for clip, fps in sorted(clips.items()):
         path = Path(args.detections) / f"{clip}.csv"
@@ -106,6 +120,9 @@ def main(argv=None):
         removed = 0
         if args.suppress_static:
             detections, removed = suppress_static_detections(detections, fps, widths[clip])
+        jumps_removed = 0
+        if args.suppress_jumps:
+            detections, jumps_removed = suppress_implausible_jumps(detections, fps, widths[clip])
         counts = {}
         for method in args.methods:
             frames = predict_clip(detections, fps, method)
@@ -113,6 +130,8 @@ def main(argv=None):
             counts[method] = len(frames)
             written += 1
         extra = f" (static detections removed: {removed})" if args.suppress_static else ""
+        if args.suppress_jumps:
+            extra += f" (jumps removed: {jumps_removed})"
         print(f"{clip}: " + ", ".join(f"{m} {n}" for m, n in counts.items()) + extra)
     print(f"\n{written} prediction files written to {args.output_dir}")
 
