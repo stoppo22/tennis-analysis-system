@@ -1,0 +1,47 @@
+{
+  "commit": "808e0b3c354f10f9dddd41aa906f58ea1714e7fd",
+  "config": {
+    "stage": "sweep-1",
+    "models": [
+      "yolo26n.pt",
+      "yolo26s.pt",
+      "yolo26m.pt",
+      "yolo11l.pt"
+    ],
+    "epochs": 20,
+    "imgsz": 960,
+    "batch": 8,
+    "seed": 0,
+    "reference": true,
+    "eval_limit": null
+  },
+  "models": {
+    "reference": {
+      "report": "/kaggle/working/reports/reference.json"
+    },
+    "yolo26n_seed0": {
+      "report": "/kaggle/working/reports/yolo26n_seed0.json",
+      "train_seconds": 1634.7846903800964,
+      "peak_gpu_gb": 2.781722112,
+      "parameters_million": 2.50419
+    },
+    "yolo26s_seed0": {
+      "report": "/kaggle/working/reports/yolo26s_seed0.json",
+      "train_seconds": 2714.1956794261932,
+      "peak_gpu_gb": 5.40391424,
+      "parameters_million": 9.948638
+    },
+    "yolo26m_seed0": {
+      "report": "/kaggle/working/reports/yolo26m_seed0.json",
+      "train_seconds": 5259.1683394908905,
+      "peak_gpu_gb": 10.484935168,
+      "parameters_million": 21.77443
+    },
+    "yolo11l_seed0": {
+      "report": "/kaggle/working/reports/yolo11l_seed0.json",
+      "train_seconds": 5971.396426916122,
+      "peak_gpu_gb": 12.070707712,
+      "parameters_million": 25.311251
+    }
+  }
+}

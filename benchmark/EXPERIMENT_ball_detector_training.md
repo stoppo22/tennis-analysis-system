@@ -163,3 +163,70 @@ is left out of the selection, without changing the recipe for it.
 
 The sweep is run in two sessions of about six hours each: YOLO26n, s, m and the YOLO11l
 control first, then YOLO26l and YOLO26x.
+
+---
+
+# Results of sweep session 1 (YOLO26 n, s, m and the YOLO11l control)
+
+Run on a Kaggle T4, commit `808e0b3`, 20 epochs, image size 960, batch 8, seed 0, trained
+on the 2,855 training images and scored on the **validation** games only (3 and 8:
+801 frames with a visible ball, 78 without). The test games were not used. Reports are in
+`benchmark/results/ball_sweep1/`; training curves and arguments in its `training_curves/`.
+One run per arm, so the spread between runs is not yet measured (rule 1 requires the
+control repeated with seeds 1 and 2).
+
+| Model | Parameters | Precision | Recall | **F1** | Frames without ball with a detection | Training time | Peak GPU memory |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| reference (published YOLO11l, not retrained) | 25.3 M | 0.896 | 0.657 | 0.758 [0.709, 0.801] | 4 of 78 | - | - |
+| control (YOLO11l retrained) | 25.3 M | 0.808 | 0.734 | 0.769 [0.706, 0.824] | 23 of 78 | 99 min | 12.1 GB |
+| YOLO26n | 2.5 M | 0.885 | 0.833 | **0.858** [0.811, 0.897] | 25 of 78 | 27 min | 2.8 GB |
+| YOLO26s | 9.9 M | 0.850 | 0.823 | 0.836 [0.772, 0.886] | 41 of 78 | 45 min | 5.4 GB |
+| YOLO26m | 21.8 M | 0.759 | 0.725 | 0.742 [0.650, 0.822] | 26 of 78 | 88 min | 10.5 GB |
+
+The F1 intervals are 10,000 block-bootstrap resamples (5 s blocks). Inference per image
+on the same T4: 0.022 s (n), 0.029 s (s), 0.050 s (m), 0.057 s (control).
+
+## Reading
+
+- The smallest model has the highest validation F1, and the F1 falls as the model grows
+  (n 0.858, s 0.836, m 0.742). The intervals of n and s overlap, and so do those of s and
+  m. A likely reason is that the larger models fit the 2,855 training images (six videos)
+  more closely in 20 epochs and generalise less to new videos, but this was not tested.
+- YOLO26n and YOLO26s are above the reference and the control; YOLO26m and the control
+  are within the noise of the reference.
+- The retrained models fire on many more frames in which the ball is not in the image
+  (23-41 of 78, against 4 of 78 for the reference). These are only 78 frames and the
+  detection may be a different ball or a mark, but it is a cost to check on the shot
+  events, where false detections matter.
+- Rule 1 is **not applied yet**: YOLO26l and YOLO26x (session 2) are still to come, and
+  the margin has to be measured with the repeated control.
+
+## Exploratory look at the shot events (not the decision of rule 3)
+
+Before session 2, YOLO26n (best epoch weights) was run once on the four development clips
+(35 contacts) exactly as in the input-resolution experiment: image size 960, confidence
+0.15, last box of the frame, static-detection filter, 10 s blocks, 10,000 resamples. The
+test split was not touched. Compared with the published model at 960 px:
+
+| Method | Published, 960 px | YOLO26n, 960 px | Paired difference |
+| --- | ---: | ---: | ---: |
+| `swing_v1` | 0.698 | 0.781 | +0.083 [-0.055, +0.219] |
+| `persistence_18` | 0.684 | 0.812 | +0.128 [+0.010, +0.231] |
+
+YOLO26n finds a detection in 1,087 of the 1,288 frames (84%), against 66.9% for the
+published model. Both point estimates are positive. This is a preview made with the
+session-1 winner before the sweep is complete; rule 3 will be applied to the model chosen
+by rule 1. Files: `benchmark/detections_yolo26n_imgsz960/`, the `*_yolo26n.csv` files in
+`benchmark/predictions/`, and `dev_shot_events_*` in `benchmark/results/ball_sweep1/`.
+
+## Status and next steps
+
+1. Session 2 (YOLO26l and YOLO26x, `training/kaggle_run.json`, stage `sweep-2`) was
+   launched as Kaggle kernel version 4 and is expected to take about five to six hours. If
+   YOLO26x runs out of memory it is reported as such (Amendment 1).
+2. Apply rule 1 on the validation F1 with all five sizes; repeat the control (and the
+   chosen size) with seeds 1 and 2 to measure the margin.
+3. Evaluate the chosen model, the control and the reference **once** on the test games
+   (rule 2), then the shot events on the development clips (rule 3).
+4. Trained weights are kept locally and not released, because the licence of the TrackNet
+   data is not stated.
