@@ -78,3 +78,63 @@ A positive outcome would say that, on four clips, a larger input gave a better F
 the same weights. It would not establish a general improvement, and it would not say
 that the model is optimal at that size: a model trained at the larger size could behave
 differently, and that is a separate experiment that needs a GPU.
+
+---
+
+# Results
+
+Four development clips, 35 contacts, same weights, confidence 0.15, last box,
+static-detection filter applied in every arm. The 640 arm reproduces the stored
+detections in `benchmark/detections/` byte for byte, so its files are not duplicated.
+Machine: Apple silicon, MPS.
+
+| Method | F1 at 640 | F1 at 960 | F1 at 1280 |
+| --- | ---: | ---: | ---: |
+| `swing_v1` | 0.625 [0.491, 0.746] | 0.698 [0.593, 0.778] | 0.535 [0.313, 0.711] |
+| `persistence_18` | 0.537 [0.273, 0.711] | 0.684 [0.556, 0.769] | 0.455 [0.255, 0.640] |
+
+Paired differences against 640:
+
+| Method | 960 minus 640 | 1280 minus 640 |
+| --- | ---: | ---: |
+| `swing_v1` | +0.073 [-0.060, +0.186] | -0.090 [-0.293, +0.087] |
+| `persistence_18` | +0.146 [+0.051, +0.292] | -0.083 [-0.285, +0.191] |
+
+At 960 `persistence_18` gains mostly recall (+0.257 [+0.100, +0.419]) and `swing_v1`
+gains precision (+0.096) and recall (+0.057), but only the `persistence_18` F1 interval
+excludes zero.
+
+## Decision rule
+
+At 960 both point estimates (+0.073 and +0.146) are above +0.03, so **960 becomes the
+proposed image size**. At 1280 both are negative, so it does not qualify, and the
+smaller size would have been chosen anyway.
+
+## Label-free diagnostics (before the static filter)
+
+| Image size | Frames with a detection | Consecutive pairs jumping more than a frame width per second | Time per frame |
+| ---: | ---: | ---: | ---: |
+| 640 | 54.3% (700 of 1,288) | 17.9% (105 of 586) | 0.12 s |
+| 960 | 66.9% (862) | 15.8% (119 of 754) | 0.25 s |
+| 1280 | 78.4% (1,010) | 22.6% (211 of 935) | 0.48 s |
+
+Times are the wall-clock time of the whole export (video decoding included) divided by
+the number of frames.
+
+Detections increase steadily with the image size, but not all of the extra ones are the
+ball: at 1280 the jump rate rises and the number of detections the static filter must
+remove grows (193 in the Rome w2 clip against 58 at 640), and both precision and recall
+fall. At 960 the extra detections come with a lower jump rate, which is consistent with
+more real ball positions rather than more spurious ones.
+
+## Reading
+
+On these four clips a larger input helps up to a point: 960 is better than 640 for both
+detectors, 1280 is worse. The size of the effect at 960 is large for `persistence_18`
+and moderate for `swing_v1`, but the sample is small (35 contacts, four clips from two
+matches) and two sizes were compared with the control, so one of them could pass by
+chance. The result is therefore a **proposal**. The pipeline
+default stays 640 until 960 is checked on new matches together with the other changes
+(`swing`, `--suppress-static`, box selection).
+
+Inference at 960 is about twice as slow as at 640.
