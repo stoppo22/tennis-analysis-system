@@ -238,21 +238,20 @@ Inference per image on the T4: 0.061 s (l), 0.105 s (x).
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Validation F1 | **0.858** | 0.836 | 0.742 | 0.737 | 0.806 |
 
-The best candidate is YOLO26n (0.858). With the planned margin of 0.02, the smallest model
-within 0.02 of the best is YOLO26n itself, so **the rule picks YOLO26n**. The result does
-not depend on the margin unless it grows above 0.12, because the smaller models are the
-best ones. The F1 does not grow with the size: it falls from n to l and rises again at x,
-and all the intervals overlap. The picture is of five models close to each other, with the
-smallest one nominally ahead, on one seed. The margin is still to be checked with the
-repeats of the control (below), as rule 1 requires, before this choice is final.
+The best candidate is YOLO26n (0.858), and it is also the smallest size, so **rule 1 picks
+YOLO26n whatever the margin is**: a larger margin could only favour a smaller model, and
+there is none. The F1 does not grow with the size: it falls from n to l and rises again at
+x, and all the intervals overlap. The picture is of five models close to each other, with
+the smallest one nominally ahead, on one seed. The repeats below still measure the spread
+between runs, which says how much weight the choice can bear, as rule 1 requires.
 
 ## Status and next steps
 
 1. Sessions 1 and 2 are done (five YOLO26 sizes and the control, seed 0).
 2. Repeats (`training/kaggle_run.json`, stage `repeats`): YOLO26n and the YOLO11l control
    with seeds 1 and 2, same recipe, validation games only, in a third Kaggle session
-   (about 4.5 hours). The spread of the control sets the margin of rule 1 (raised above
-   0.02 only if the spread is larger).
+   (about 4.5 hours). The spread of the control is reported as the margin of rule 1 (it
+   cannot change the choice, but it qualifies it).
 3. Evaluate the chosen model, the control and the reference **once** on the test games
    (rule 2), then the shot events on the development clips (rule 3).
 4. Trained weights are kept locally and not released, because the licence of the TrackNet
