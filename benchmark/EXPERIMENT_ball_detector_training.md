@@ -245,14 +245,39 @@ x, and all the intervals overlap. The picture is of five models close to each ot
 the smallest one nominally ahead, on one seed. The repeats below still measure the spread
 between runs, which says how much weight the choice can bear, as rule 1 requires.
 
+# Results of the repeats (YOLO26n and the control, seeds 1 and 2)
+
+Run on a Kaggle T4, commit `71e16fc`, same recipe, validation games only. Reports in
+`benchmark/results/ball_repeats/` (seed 0 is in `ball_sweep1/`).
+
+| Model | Seed | Precision | Recall | F1 | Frames without ball with a detection |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| YOLO26n | 0 | 0.885 | 0.833 | 0.858 [0.811, 0.897] | 25 of 78 |
+| YOLO26n | 1 | 0.959 | 0.811 | 0.879 [0.843, 0.908] | 11 of 78 |
+| YOLO26n | 2 | 0.857 | 0.838 | 0.847 [0.794, 0.891] | 46 of 78 |
+| control YOLO11l | 0 | 0.808 | 0.734 | 0.769 [0.706, 0.824] | 23 of 78 |
+| control YOLO11l | 1 | 0.814 | 0.737 | 0.773 [0.704, 0.833] | 18 of 78 |
+| control YOLO11l | 2 | 0.864 | 0.684 | 0.764 [0.703, 0.815] | 17 of 78 |
+
+- Spread of the control: range 0.010 (standard deviation 0.005), below 0.02, so **the margin
+  of rule 1 stays at 0.02**. Rule 1 still picks YOLO26n.
+- YOLO26n: mean F1 0.861 over three seeds, range 0.032 (standard deviation 0.016). The
+  spread is larger than the control's but all three seeds are above 0.84, well above every
+  control run (mean 0.769) and above the reference (0.758). The F1 of YOLO26n is therefore
+  not a lucky seed.
+- The detections on frames without a ball vary a lot between seeds of YOLO26n (11, 25 and
+  46 of 78) while F1 hardly moves, so this number is not stable enough to be read as a
+  property of the model.
+
+**Model used for rules 2 and 3.** Fixed here, before any test game is scored: the YOLO26n
+weights of **seed 0**, the original sweep run (the one already used in the exploratory look
+at the shot events). It is not chosen among the seeds by score. The seeds 1 and 2 are
+reported as the spread.
+
 ## Status and next steps
 
-1. Sessions 1 and 2 are done (five YOLO26 sizes and the control, seed 0).
-2. Repeats (`training/kaggle_run.json`, stage `repeats`): YOLO26n and the YOLO11l control
-   with seeds 1 and 2, same recipe, validation games only, in a third Kaggle session
-   (about 4.5 hours). The spread of the control is reported as the margin of rule 1 (it
-   cannot change the choice, but it qualifies it).
-3. Evaluate the chosen model, the control and the reference **once** on the test games
-   (rule 2), then the shot events on the development clips (rule 3).
-4. Trained weights are kept locally and not released, because the licence of the TrackNet
+1. Sessions 1, 2 and the repeats are done. Rule 1 is applied: YOLO26n, margin 0.02.
+2. Evaluate YOLO26n (seed 0), the control (seed 0) and the reference **once** on the test
+   games (rule 2), then the shot events on the development clips (rule 3).
+3. Trained weights are kept locally and not released, because the licence of the TrackNet
    data is not stated.
