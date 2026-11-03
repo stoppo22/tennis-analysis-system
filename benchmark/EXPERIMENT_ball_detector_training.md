@@ -219,13 +219,40 @@ session-1 winner before the sweep is complete; rule 3 will be applied to the mod
 by rule 1. Files: `benchmark/detections_yolo26n_imgsz960/`, the `*_yolo26n.csv` files in
 `benchmark/predictions/`, and `dev_shot_events_*` in `benchmark/results/ball_sweep1/`.
 
+# Results of sweep session 2 (YOLO26 l and x)
+
+Run on a Kaggle T4, commit `387a666`, same recipe as session 1 (20 epochs, image size 960,
+batch 8, seed 0), validation games only. Reports in `benchmark/results/ball_sweep2/`.
+YOLO26x fitted in memory (15.08 GB peak), so no model is left out of the selection.
+
+| Model | Parameters | Precision | Recall | **F1** | Frames without ball with a detection | Training time | Peak GPU memory |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| YOLO26l | 26.2 M | 0.737 | 0.738 | 0.737 [0.657, 0.805] | 53 of 78 | 113 min | 12.7 GB |
+| YOLO26x | 58.8 M | 0.840 | 0.774 | 0.806 [0.749, 0.853] | 21 of 78 | 206 min | 15.1 GB |
+
+Inference per image on the T4: 0.061 s (l), 0.105 s (x).
+
+## Rule 1 on the five sizes (single seed, margin not yet measured)
+
+| Size | n | s | m | l | x |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Validation F1 | **0.858** | 0.836 | 0.742 | 0.737 | 0.806 |
+
+The best candidate is YOLO26n (0.858). With the planned margin of 0.02, the smallest model
+within 0.02 of the best is YOLO26n itself, so **the rule picks YOLO26n**. The result does
+not depend on the margin unless it grows above 0.12, because the smaller models are the
+best ones. The F1 does not grow with the size: it falls from n to l and rises again at x,
+and all the intervals overlap. The picture is of five models close to each other, with the
+smallest one nominally ahead, on one seed. The margin is still to be checked with the
+repeats of the control (below), as rule 1 requires, before this choice is final.
+
 ## Status and next steps
 
-1. Session 2 (YOLO26l and YOLO26x, `training/kaggle_run.json`, stage `sweep-2`) was
-   launched as Kaggle kernel version 4 and is expected to take about five to six hours. If
-   YOLO26x runs out of memory it is reported as such (Amendment 1).
-2. Apply rule 1 on the validation F1 with all five sizes; repeat the control (and the
-   chosen size) with seeds 1 and 2 to measure the margin.
+1. Sessions 1 and 2 are done (five YOLO26 sizes and the control, seed 0).
+2. Repeats (`training/kaggle_run.json`, stage `repeats`): YOLO26n and the YOLO11l control
+   with seeds 1 and 2, same recipe, validation games only, in a third Kaggle session
+   (about 4.5 hours). The spread of the control sets the margin of rule 1 (raised above
+   0.02 only if the spread is larger).
 3. Evaluate the chosen model, the control and the reference **once** on the test games
    (rule 2), then the shot events on the development clips (rule 3).
 4. Trained weights are kept locally and not released, because the licence of the TrackNet

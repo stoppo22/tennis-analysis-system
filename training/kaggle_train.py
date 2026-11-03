@@ -80,7 +80,7 @@ def train_one(weights, data_yaml, config, runs_dir):
         deterministic=True,
         device=device,
         project=str(runs_dir),
-        name=Path(weights).stem,
+        name=f"{Path(weights).stem}_seed{config['seed']}",
         workers=config.get("workers", 4),
         fraction=config.get("fraction", 1.0),
         plots=False,
@@ -127,15 +127,17 @@ def main(argv=None):
             report_path.write_text(json.dumps(report, indent=2))
         summary["models"]["reference"] = {"report": str(report_path)}
 
-    for weights in config["models"]:
-        name = f"{Path(weights).stem}_seed{config['seed']}"
+    seeds = config.get("seeds", [config["seed"]])
+    for seed, weights in ((seed, weights) for seed in seeds for weights in config["models"]):
+        run_config = {**config, "seed": seed}
+        name = f"{Path(weights).stem}_seed{seed}"
         report_path = reports / f"{name}.json"
         if report_path.is_file():
             print(f"{name}: report exists, skipped", flush=True)
             continue
         entry = {}
         try:
-            best, info = train_one(weights, dataset / "data.yaml", config, runs)
+            best, info = train_one(weights, dataset / "data.yaml", run_config, runs)
             target = weights_dir / f"{name}.pt"
             target.write_bytes(best.read_bytes())
             report = evaluate(target, dataset, "validation", config["imgsz"], **eval_options)

@@ -1,10 +1,11 @@
 {
-  "stage": "sweep-2",
-  "models": ["yolo26l.pt", "yolo26x.pt"],
+  "stage": "repeats",
+  "models": ["yolo26n.pt", "yolo11l.pt"],
   "epochs": 20,
   "imgsz": 960,
   "batch": 8,
   "seed": 0,
+  "seeds": [1, 2],
   "reference": false,
   "eval_limit": null
 }
