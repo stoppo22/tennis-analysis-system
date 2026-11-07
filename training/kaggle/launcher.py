@@ -6,6 +6,7 @@ dataset attached (see ``training/kaggle/kernel-metadata.json``); from the reposi
 ``kaggle kernels push -p training/kaggle``.
 """
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -30,14 +31,20 @@ subprocess.run(["git", "clone", "--depth", "1", "--branch", BRANCH, REPOSITORY, 
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "ultralytics==8.4.123"], check=True)
 source = find_dataset_root()
 print(f"dataset found at {source}", flush=True)
-subprocess.run(
-    [
-        sys.executable,
-        "training/kaggle_train.py",
+stage = json.loads((Path(CHECKOUT) / "training/kaggle_run.json").read_text()).get("stage")
+if stage == "test":
+    command = [
+        sys.executable, "training/kaggle_test.py",
+        "--config", "training/kaggle_run.json",
+        "--source", str(source),
+        "--weights-root", "/kaggle/input",
+        "--work", "/kaggle/working",
+    ]
+else:
+    command = [
+        sys.executable, "training/kaggle_train.py",
         "--config", "training/kaggle_run.json",
         "--source", str(source),
         "--work", "/kaggle/working",
-    ],
-    check=True,
-    cwd=CHECKOUT,
-)
+    ]
+subprocess.run(command, check=True, cwd=CHECKOUT)

@@ -1,11 +1,19 @@
 {
-  "stage": "repeats",
-  "models": ["yolo26n.pt", "yolo11l.pt"],
-  "epochs": 20,
+  "stage": "test",
   "imgsz": 960,
-  "batch": 8,
-  "seed": 0,
-  "seeds": [1, 2],
-  "reference": false,
-  "eval_limit": null
+  "device": 0,
+  "eval_limit": null,
+  "arms": {
+    "reference": {
+      "reference": true
+    },
+    "control": {
+      "name": "yolo11l_seed0",
+      "sha256": "22294bb57b8dc34ba173edb8e498aa8625d8a6685f066d06e5ace1d066dc1fa5"
+    },
+    "candidate": {
+      "name": "yolo26n_seed0",
+      "sha256": "314715c935e0ce87dbc0e80bee656bcd3197308dee28ef451c6ba93ae13d03e6"
+    }
+  }
 }
