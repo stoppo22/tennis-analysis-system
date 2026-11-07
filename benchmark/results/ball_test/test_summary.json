@@ -1,0 +1,81 @@
+{
+  "commit": "70e3a529dd212cec9f811f655b6dea8bdbe63238",
+  "config": {
+    "stage": "test",
+    "imgsz": 960,
+    "device": 0,
+    "eval_limit": null,
+    "arms": {
+      "reference": {
+        "reference": true
+      },
+      "control": {
+        "name": "yolo11l_seed0",
+        "sha256": "22294bb57b8dc34ba173edb8e498aa8625d8a6685f066d06e5ace1d066dc1fa5"
+      },
+      "candidate": {
+        "name": "yolo26n_seed0",
+        "sha256": "314715c935e0ce87dbc0e80bee656bcd3197308dee28ef451c6ba93ae13d03e6"
+      }
+    }
+  },
+  "comparisons": {
+    "candidate_minus_reference": {
+      "units": 28,
+      "precision": {
+        "difference": -0.42173889866197556,
+        "ci_low": -0.5347534572325341,
+        "ci_high": -0.2978400739425724
+      },
+      "recall": {
+        "difference": -0.09608540925266906,
+        "ci_low": -0.17377405559515322,
+        "ci_high": -0.014453065179004026
+      },
+      "f1": {
+        "difference": -0.2254981727450861,
+        "ci_low": -0.312125119171541,
+        "ci_high": -0.13196536893058233
+      },
+      "probability_b_better": 0.0
+    },
+    "control_minus_reference": {
+      "units": 28,
+      "precision": {
+        "difference": -0.36990883098667526,
+        "ci_low": -0.4724531667812913,
+        "ci_high": -0.26225380056202124
+      },
+      "recall": {
+        "difference": -0.05100830367734277,
+        "ci_low": -0.11300274890530611,
+        "ci_high": 0.010538950556103032
+      },
+      "f1": {
+        "difference": -0.17705695689909473,
+        "ci_low": -0.24857564267008583,
+        "ci_high": -0.10240780147200117
+      },
+      "probability_b_better": 0.0
+    },
+    "candidate_minus_control": {
+      "units": 28,
+      "precision": {
+        "difference": -0.051830067675300295,
+        "ci_low": -0.10270855227579243,
+        "ci_high": -0.002632285985577201
+      },
+      "recall": {
+        "difference": -0.04507710557532629,
+        "ci_low": -0.09434109058169574,
+        "ci_high": 0.0013056543519528012
+      },
+      "f1": {
+        "difference": -0.04844121584599137,
+        "ci_low": -0.0975553311644379,
+        "ci_high": -0.000971036773920241
+      },
+      "probability_b_better": 0.0223
+    }
+  }
+}

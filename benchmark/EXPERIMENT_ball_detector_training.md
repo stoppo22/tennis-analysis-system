@@ -274,10 +274,61 @@ weights of **seed 0**, the original sweep run (the one already used in the explo
 at the shot events). It is not chosen among the seeds by score. The seeds 1 and 2 are
 reported as the spread.
 
-## Status and next steps
+# Results of the test games (rule 2)
 
-1. Sessions 1, 2 and the repeats are done. Rule 1 is applied: YOLO26n, margin 0.02.
-2. Evaluate YOLO26n (seed 0), the control (seed 0) and the reference **once** on the test
-   games (rule 2), then the shot events on the development clips (rule 3).
-3. Trained weights are kept locally and not released, because the licence of the TrackNet
-   data is not stated.
+Run once on a Kaggle T4, commit `70e3a52` (`training/kaggle_test.py`), games 6 and 9 only:
+857 frames, 843 with a visible ball and 14 without. Image size 960, confidence 0.15, same
+scoring as the validation. Each weight file was checked against the SHA-256 of its
+validation report. Reports in `benchmark/results/ball_test/`.
+
+| Arm | Precision | Recall | **F1** | Frames without ball with a detection |
+| --- | ---: | ---: | ---: | ---: |
+| reference (published YOLO11l) | 0.950 [0.922, 0.975] | 0.625 [0.584, 0.666] | **0.754** [0.724, 0.782] | 0 of 14 |
+| control (YOLO11l retrained, seed 0) | 0.580 [0.491, 0.673] | 0.574 [0.491, 0.659] | 0.577 [0.491, 0.666] | 7 of 14 |
+| YOLO26n (seed 0) | 0.528 [0.431, 0.633] | 0.529 [0.435, 0.631] | 0.528 [0.433, 0.632] | 14 of 14 |
+
+Paired differences (same resampled blocks):
+
+| Comparison | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| YOLO26n minus reference | -0.422 [-0.535, -0.298] | -0.096 [-0.174, -0.015] | **-0.226 [-0.312, -0.132]** |
+| control minus reference | -0.370 [-0.473, -0.262] | -0.051 [-0.113, +0.011] | -0.177 [-0.249, -0.102] |
+| YOLO26n minus control | -0.052 [-0.103, -0.003] | -0.045 [-0.094, +0.001] | -0.048 [-0.098, -0.001] |
+
+## Rule 2
+
+The chosen model had to exceed the reference by at least +0.05 in F1 with the paired
+interval above zero. The difference is **-0.226 and the interval is entirely below zero**,
+so rule 2 is **not met**. As the protocol states, the experiment is reported as
+**negative and the published model stays**. Rule 3 is not applied: it concerns a proposed
+model, and there is none.
+
+## Reading
+
+- The order on the validation games did not carry over. YOLO26n went from the best arm
+  (validation F1 0.858, reference 0.758) to the worst (0.528 against 0.754). The reference
+  barely moved between validation and test (0.758, 0.754), the retrained models lost
+  0.19 (control) and 0.33 (YOLO26n).
+- The loss is mostly precision. Both retrained models return a box on nearly every frame
+  (precision and recall are almost equal, so the number of boxes is close to the number of
+  frames), and many are not at the ball. The reference answers on fewer frames and is right
+  on 95% of them. Recall of the retrained models is also lower than the reference.
+- The 14 frames without a ball are too few to say anything on their own; the validation
+  repeats had already shown that this count is unstable across seeds.
+- Why the gap is so large was **not investigated**. Possible causes are a mismatch between
+  the validation games (3 and 8) and the test games (6 and 9), a selection effect of
+  picking the best of five sizes on two videos, and a training recipe that fits the six
+  training videos too closely. None of these has been tested, and the test games must not
+  be used again to try them: they have been scored once, as the protocol requires.
+- The exploratory preview on the shot events of the development clips (YOLO26n above the
+  published model at 960 px) is not a basis for adoption. It rested on four clips, and the
+  larger and independent TrackNet test now points the other way.
+
+## Status
+
+1. Sessions 1, 2, the repeats and the test are done. Rule 1: YOLO26n. Rule 2: not met.
+2. The published model `models/yolov11best.pt` stays. The proposal of 960 px as input size
+   (`EXPERIMENT_input_resolution.md`) is unaffected: it uses the published weights.
+3. Trained weights are kept locally and not released (TrackNet licence not stated).
+4. Any follow-up (more diverse training data, self-labelled frames from match footage,
+   other recipes) is a separate experiment with its own protocol and a fresh evaluation set.

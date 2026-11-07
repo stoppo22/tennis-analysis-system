@@ -1,0 +1,234 @@
+{
+  "summary": {
+    "visible": 843,
+    "found": 527,
+    "absent": 14,
+    "absent_with_detection": 0
+  },
+  "recall_visible": 0.6251482799525504,
+  "false_detection_rate_absent": 0.0,
+  "metrics": {
+    "units": 28,
+    "precision": {
+      "value": 0.9495495495495495,
+      "ci_low": 0.9217081850533808,
+      "ci_high": 0.975
+    },
+    "recall": {
+      "value": 0.6251482799525504,
+      "ci_low": 0.5838352591973129,
+      "ci_high": 0.6655174381987089
+    },
+    "f1": {
+      "value": 0.753934191702432,
+      "ci_low": 0.7237408672283963,
+      "ci_high": 0.7816096015596442
+    }
+  },
+  "counts": [
+    [
+      "game6_Clip1",
+      0,
+      11,
+      0,
+      22
+    ],
+    [
+      "game6_Clip1",
+      1,
+      22,
+      0,
+      15
+    ],
+    [
+      "game6_Clip1",
+      2,
+      24,
+      0,
+      12
+    ],
+    [
+      "game6_Clip1",
+      3,
+      19,
+      3,
+      15
+    ],
+    [
+      "game6_Clip2",
+      0,
+      21,
+      0,
+      16
+    ],
+    [
+      "game6_Clip2",
+      1,
+      23,
+      0,
+      12
+    ],
+    [
+      "game6_Clip2",
+      2,
+      23,
+      0,
+      14
+    ],
+    [
+      "game6_Clip2",
+      3,
+      17,
+      0,
+      15
+    ],
+    [
+      "game6_Clip3",
+      0,
+      24,
+      0,
+      14
+    ],
+    [
+      "game6_Clip3",
+      1,
+      17,
+      0,
+      20
+    ],
+    [
+      "game6_Clip3",
+      2,
+      20,
+      0,
+      16
+    ],
+    [
+      "game6_Clip3",
+      3,
+      8,
+      0,
+      12
+    ],
+    [
+      "game6_Clip4",
+      0,
+      24,
+      0,
+      11
+    ],
+    [
+      "game6_Clip4",
+      1,
+      17,
+      0,
+      16
+    ],
+    [
+      "game9_Clip1",
+      0,
+      12,
+      0,
+      7
+    ],
+    [
+      "game9_Clip2",
+      0,
+      22,
+      4,
+      13
+    ],
+    [
+      "game9_Clip2",
+      1,
+      18,
+      3,
+      6
+    ],
+    [
+      "game9_Clip3",
+      0,
+      25,
+      2,
+      11
+    ],
+    [
+      "game9_Clip3",
+      1,
+      24,
+      1,
+      13
+    ],
+    [
+      "game9_Clip3",
+      2,
+      9,
+      0,
+      5
+    ],
+    [
+      "game9_Clip4",
+      0,
+      21,
+      4,
+      5
+    ],
+    [
+      "game9_Clip5",
+      0,
+      28,
+      1,
+      8
+    ],
+    [
+      "game9_Clip5",
+      1,
+      22,
+      0,
+      4
+    ],
+    [
+      "game9_Clip6",
+      0,
+      15,
+      4,
+      8
+    ],
+    [
+      "game9_Clip7",
+      0,
+      14,
+      4,
+      6
+    ],
+    [
+      "game9_Clip8",
+      0,
+      11,
+      0,
+      3
+    ],
+    [
+      "game9_Clip9",
+      0,
+      25,
+      1,
+      12
+    ],
+    [
+      "game9_Clip9",
+      1,
+      11,
+      1,
+      5
+    ]
+  ],
+  "weights": "/kaggle/working/reference/yolov11best.pt",
+  "split": "test",
+  "imgsz": 960,
+  "confidence": 0.15,
+  "images": 857,
+  "seconds_per_image": 0.06368798052277003,
+  "arm": "reference",
+  "sha256": "1f74aea3f7e84ccfbf61d0633d3f0d9713b20f2a7709771b8f9afa426a315d8c"
+}
