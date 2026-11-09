@@ -1,6 +1,9 @@
 import unittest
 
-from tennis_analysis.utils.detection_filters import suppress_static_detections
+from tennis_analysis.utils.detection_filters import (
+    suppress_implausible_jumps,
+    suppress_static_detections,
+)
 
 
 def box(x, y, half=6.0):
@@ -79,6 +82,64 @@ class SuppressStaticDetectionsTest(unittest.TestCase):
 
     def test_empty_input(self):
         self.assertEqual(suppress_static_detections([], 25.0, 1920), ([], 0))
+
+
+class SuppressImplausibleJumpsTest(unittest.TestCase):
+    def trajectory(self):
+        return [box(100 + 20 * i, 500) for i in range(30)]
+
+    def test_an_isolated_far_detection_is_removed(self):
+        detections = self.trajectory()
+        detections[10] = box(1700, 100)
+
+        filtered, removed = suppress_implausible_jumps(detections, fps=25.0, frame_width=1920)
+
+        self.assertEqual(removed, 1)
+        self.assertEqual(filtered[10], {})
+        self.assertEqual(filtered[9], detections[9])
+        self.assertEqual(filtered[11], detections[11])
+
+    def test_a_fast_but_continuous_ball_is_kept(self):
+        detections = [box(50 + 100 * i, 500) for i in range(15)]  # 2,500 px/s, 1.3 widths/s
+
+        filtered, removed = suppress_implausible_jumps(detections, fps=25.0, frame_width=1920)
+
+        self.assertEqual(removed, 0)
+        self.assertEqual(filtered, detections)
+
+    def test_a_detection_with_no_neighbour_in_range_is_kept(self):
+        detections = [box(100, 100)] + [{}] * 20 + [box(1800, 900)]
+
+        filtered, removed = suppress_implausible_jumps(detections, fps=25.0, frame_width=1920)
+
+        self.assertEqual(removed, 0)
+        self.assertEqual(filtered, detections)
+
+    def test_a_gap_gives_time_to_cover_more_distance(self):
+        near = [box(100, 500), {}, {}, {}, box(500, 500)]  # 400 px in 4 frames at 25 FPS
+
+        _, removed = suppress_implausible_jumps(near, fps=25.0, frame_width=1920)
+
+        self.assertEqual(removed, 0)
+
+    def test_numbering_is_preserved_and_the_input_is_not_modified(self):
+        detections = self.trajectory()
+        detections[5] = box(1800, 900)
+        snapshot = [dict(entry) for entry in detections]
+
+        filtered, _ = suppress_implausible_jumps(detections, fps=25.0, frame_width=1920)
+
+        self.assertEqual(len(filtered), len(detections))
+        self.assertEqual(detections, snapshot)
+
+    def test_an_empty_clip_has_nothing_to_remove(self):
+        self.assertEqual(suppress_implausible_jumps([{}, {}], 25.0, 1920), ([{}, {}], 0))
+
+    def test_invalid_parameters_are_rejected(self):
+        with self.assertRaises(ValueError):
+            suppress_implausible_jumps([], fps=0.0, frame_width=1920)
+        with self.assertRaises(ValueError):
+            suppress_implausible_jumps([], fps=25.0, frame_width=0)
 
 
 if __name__ == "__main__":
