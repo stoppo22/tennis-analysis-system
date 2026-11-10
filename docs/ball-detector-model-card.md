@@ -103,8 +103,12 @@ single tennis-ball class.
   camera angles, resolutions, or frame rates.
 - Downstream interpolation can fill short detection gaps, but it can also
   propagate inaccurate detections.
-- The project benchmark contains only two local 25 FPS videos and evaluates
-  shot events, not raw ball-detection boxes.
+- On the project's 28 held-out test clips the ball is detected in 47.5% of the
+  frames (28-34% in three of the four matches). On the TrackNet test games at
+  960 px, ball-level precision is 0.950 and recall 0.625.
+- Retraining on TrackNet (YOLO26 and YOLO11l) did not beat this checkpoint on the
+  TrackNet test games; see
+  [the experiment](../benchmark/EXPERIMENT_ball_detector_training.md).
 - Ball-speed estimates have not been evaluated against ground-truth speed.
 
 ## Licence and attribution

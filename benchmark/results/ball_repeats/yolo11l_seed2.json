@@ -1,0 +1,271 @@
+{
+  "summary": {
+    "visible": 801,
+    "found": 548,
+    "absent": 78,
+    "absent_with_detection": 17
+  },
+  "recall_visible": 0.6841448189762797,
+  "false_detection_rate_absent": 0.21794871794871795,
+  "metrics": {
+    "units": 33,
+    "precision": {
+      "value": 0.8643533123028391,
+      "ci_low": 0.781345595637174,
+      "ci_high": 0.9335736421403935
+    },
+    "recall": {
+      "value": 0.6841448189762797,
+      "ci_low": 0.6226943262411347,
+      "ci_high": 0.7382261856282941
+    },
+    "f1": {
+      "value": 0.7637630662020906,
+      "ci_low": 0.7027014663336714,
+      "ci_high": 0.8148181635523407
+    }
+  },
+  "counts": [
+    [
+      "game3_Clip1",
+      0,
+      23,
+      1,
+      13
+    ],
+    [
+      "game3_Clip1",
+      1,
+      6,
+      0,
+      1
+    ],
+    [
+      "game3_Clip2",
+      0,
+      3,
+      0,
+      5
+    ],
+    [
+      "game3_Clip3",
+      0,
+      23,
+      0,
+      13
+    ],
+    [
+      "game3_Clip3",
+      1,
+      24,
+      0,
+      9
+    ],
+    [
+      "game3_Clip3",
+      2,
+      2,
+      1,
+      13
+    ],
+    [
+      "game3_Clip4",
+      0,
+      27,
+      0,
+      10
+    ],
+    [
+      "game3_Clip4",
+      1,
+      29,
+      0,
+      8
+    ],
+    [
+      "game3_Clip4",
+      2,
+      19,
+      2,
+      7
+    ],
+    [
+      "game3_Clip5",
+      0,
+      22,
+      0,
+      9
+    ],
+    [
+      "game3_Clip6",
+      0,
+      20,
+      0,
+      13
+    ],
+    [
+      "game3_Clip6",
+      1,
+      1,
+      0,
+      10
+    ],
+    [
+      "game3_Clip7",
+      0,
+      21,
+      0,
+      12
+    ],
+    [
+      "game3_Clip7",
+      1,
+      1,
+      0,
+      14
+    ],
+    [
+      "game3_Clip7",
+      2,
+      0,
+      0,
+      3
+    ],
+    [
+      "game3_Clip8",
+      0,
+      9,
+      1,
+      2
+    ],
+    [
+      "game3_Clip9",
+      0,
+      25,
+      0,
+      8
+    ],
+    [
+      "game8_Clip1",
+      0,
+      17,
+      5,
+      10
+    ],
+    [
+      "game8_Clip2",
+      0,
+      20,
+      0,
+      3
+    ],
+    [
+      "game8_Clip3",
+      0,
+      15,
+      8,
+      16
+    ],
+    [
+      "game8_Clip3",
+      1,
+      21,
+      4,
+      8
+    ],
+    [
+      "game8_Clip3",
+      2,
+      17,
+      3,
+      2
+    ],
+    [
+      "game8_Clip4",
+      0,
+      23,
+      8,
+      9
+    ],
+    [
+      "game8_Clip5",
+      0,
+      8,
+      10,
+      8
+    ],
+    [
+      "game8_Clip6",
+      0,
+      5,
+      20,
+      7
+    ],
+    [
+      "game8_Clip7",
+      0,
+      26,
+      4,
+      6
+    ],
+    [
+      "game8_Clip7",
+      1,
+      24,
+      2,
+      9
+    ],
+    [
+      "game8_Clip7",
+      2,
+      16,
+      13,
+      14
+    ],
+    [
+      "game8_Clip8",
+      0,
+      20,
+      4,
+      6
+    ],
+    [
+      "game8_Clip8",
+      1,
+      26,
+      0,
+      1
+    ],
+    [
+      "game8_Clip8",
+      2,
+      5,
+      0,
+      0
+    ],
+    [
+      "game8_Clip9",
+      0,
+      32,
+      0,
+      3
+    ],
+    [
+      "game8_Clip9",
+      1,
+      18,
+      0,
+      1
+    ]
+  ],
+  "weights": "/kaggle/working/weights/yolo11l_seed2.pt",
+  "split": "validation",
+  "imgsz": 960,
+  "confidence": 0.15,
+  "images": 879,
+  "seconds_per_image": 0.05783441801798086,
+  "train_seconds": 5944.221395492554,
+  "peak_gpu_gb": 11.631153152,
+  "parameters_million": 25.311251,
+  "sha256": "fcf3f8987ce93b56dbd2606bb66674d82d3890d15dd17f91e40a5246787467d7"
+}

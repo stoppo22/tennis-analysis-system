@@ -11,8 +11,7 @@
 | `v0.6` | `e65b6bf` | Shot-detection thresholds normalized by video FPS while preserving the v0.5 results at 25 FPS. |
 | Post-v0.6 | `74f7430` onward | History cleanup, structured CSV export, notebook cleanup, CI, redesigned overlays, model documentation, licensing, visual demo, and clean-clone verification. |
 | `v1.0` | `1b4bf16` | Release with the ball checkpoint distributed as a release asset. |
-| v1.2 (in progress) | branch `v1.2-benchmark-expansion` | Benchmark expansion protocol, block-bootstrap intervals, multi-clip runner, ball detections stored as CSV, and the alternating-swing shot detector with a pre-registered leave-one-clip-out study. |
-| v1.3 (in progress) | branch `v1.4-package-structure` | Installable `tennis_analysis` package with a `tennis-analysis` command, selectable shot detector, overridable model paths, staged pipeline, linter in CI. |
+| Post-v1.0 | PRs #3-#23 | Installable `tennis_analysis` package and `tennis-analysis` command, block-bootstrap intervals, expanded benchmark (28 test clips from four matches, frozen before evaluation), the alternating-swing shot detector confirmed on the test clips, the static-detection filter, and pre-registered experiments on box selection, input size, a jump filter and retraining the ball detector. |
 
 There is intentionally no `v0.4` tag. The benchmark implementation and the
 measured v0.5 improvement were committed together, so the repository does not

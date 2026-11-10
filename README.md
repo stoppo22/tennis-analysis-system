@@ -98,6 +98,28 @@ with a clear precision gain, which the test above then confirmed. The original v
 benchmark (two clips, 54 events) showed F1 0.7500 to 0.8293 and 0.5806 to 0.6875 for
 the 25-frame and 18-frame persistence rules; those clips are now development data.
 
+### Ball detection experiments
+
+Three pre-registered experiments on the ball detector. None of them changes the
+pipeline defaults yet.
+
+- **Input size.** On four development clips, the published model at 960 px instead of
+  640 px detected the ball in 67% of the frames instead of 54%, and shot-event F1
+  changed by +0.073 [-0.060, +0.186] (`swing_v1`) and +0.146 [+0.051, +0.292]
+  (`persistence_18`). 1280 px was worse than 640 px. 960 px is a proposal until it is
+  checked on new matches.
+  [Details](benchmark/EXPERIMENT_input_resolution.md).
+- **Jump filter.** Removing physically impossible jumps of the ball changed F1 by
+  +0.000 and +0.018, below the threshold set in advance, so it is not adopted.
+  [Details](benchmark/EXPERIMENT_jump_filter.md).
+- **Retraining.** YOLO26 in five sizes and a retrained YOLO11l were trained on the
+  public TrackNet dataset and scored ball by ball. The best on the validation games
+  (YOLO26n, F1 0.858 against 0.758 for the published model) was worse on the test
+  games, scored once: 0.528 against 0.754, difference -0.226 [-0.312, -0.132]. The
+  retrained models report a box on almost every frame and lose most of their
+  precision. The published model stays.
+  [Details](benchmark/EXPERIMENT_ball_detector_training.md).
+
 ## Quick start
 
 Python 3.11 is the tested version. From the repository root:
@@ -222,9 +244,11 @@ split between tutorial and project-specific work is also stated in
    between two annotators, which bounds what any detector can reach.
 2. Recover the timing accuracy of `swing_v1` and add player proximity to reject
    shifted events; both need a new fresh test split.
-3. Evaluate and improve ball detection and tracking: the ball is seen in under half
-   of the test frames and this limits every method. Compare detector architectures
-   and input resolution with the same protocol.
+3. Improve ball detection on broadcast footage: the ball is seen in under half of the
+   test frames and this limits every method. Confirm 960 px on new matches. Retraining
+   on TrackNet did not carry over to its test games, so a new attempt needs training
+   frames from broadcast matches like the benchmark's, with its own protocol and a
+   fresh evaluation set.
 4. Reconstruct trajectories in metres via the court homography and validate
    speeds against broadcast serve-speed readouts.
 5. Packaging: `pyproject.toml`, Docker, end-to-end test, and throughput numbers.
